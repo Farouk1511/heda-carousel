@@ -1,0 +1,35 @@
+{
+  "name": "heda-carousel",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "remotion:preview": "remotion studio src/remotion/index.ts",
+    "render:reel": "npx tsx render.ts",
+    "render:all": "npx tsx render.ts --all",
+    "render:text-reel": "npx tsx render.ts --composition=TextReelVideo",
+    "render:text-reel:example": "npx tsx render.ts --composition=TextReelVideo --reel-id=heda-community-reel"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.242",
+    "@remotion/cli": "^4.0.242",
+    "@remotion/google-fonts": "^4.0.441",
+    "@remotion/renderer": "^4.0.242",
+    "html-to-image": "^1.11.11",
+    "jszip": "^3.10.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.242"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tsx": "^4.19.0",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.0"
+  }
+}
