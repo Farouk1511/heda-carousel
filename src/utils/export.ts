@@ -1,9 +1,12 @@
+import React from "react";
+import { createRoot } from "react-dom/client";
 import { toPng } from "html-to-image";
 import JSZip from "jszip";
 import type { Post } from "../data/posts";
 import type { ThemeName } from "../data/themes";
 import type { AspectRatio } from "../hooks/useCarouselState";
 import { HASHTAGS } from "../data/posts";
+import { Card } from "../components/Card";
 
 function getExportDimensions(ratio: AspectRatio) {
   switch (ratio) {
@@ -17,24 +20,58 @@ function getExportDimensions(ratio: AspectRatio) {
   }
 }
 
-async function captureCardElement(ratio: AspectRatio): Promise<Blob> {
+async function captureCardOffscreen(
+  post: Post,
+  slideIndex: number,
+  theme: ThemeName,
+  ratio: AspectRatio
+): Promise<Blob> {
   const { w, h } = getExportDimensions(ratio);
-  const cardEl = document.querySelector(".card-area .card-export-target") as HTMLElement;
-  if (!cardEl) throw new Error("Card element not found");
+
+  // Create an offscreen container at full export size (same as legacy approach)
+  const offscreen = document.createElement("div");
+  offscreen.style.cssText = `
+    position: fixed; left: -9999px; top: 0; z-index: -1;
+    width: ${w}px; height: ${h}px; overflow: hidden;
+  `;
+  document.body.appendChild(offscreen);
+
+  // Mount a full-size Card via React at export dimensions
+  const cardContainer = document.createElement("div");
+  cardContainer.style.cssText = `width: ${w}px; height: ${h}px;`;
+  offscreen.appendChild(cardContainer);
+
+  const root = createRoot(cardContainer);
+  root.render(
+    React.createElement(Card, {
+      post,
+      slideIndex,
+      theme,
+      width: w,
+      height: h,
+      logoSrc: "/LOGO.png",
+    })
+  );
+
+  // Wait for React render + fonts/images to load
+  await new Promise((r) => setTimeout(r, 300));
+
+  const cardEl = cardContainer.firstElementChild as HTMLElement;
+  if (!cardEl) {
+    root.unmount();
+    document.body.removeChild(offscreen);
+    throw new Error("Card element not found in offscreen container");
+  }
 
   const dataUrl = await toPng(cardEl, {
     width: w,
     height: h,
-    style: {
-      width: `${w}px`,
-      height: `${h}px`,
-      maxWidth: "none",
-      aspectRatio: "auto",
-      borderRadius: "0",
-      transform: "none",
-    },
     pixelRatio: 1,
   });
+
+  // Clean up
+  root.unmount();
+  document.body.removeChild(offscreen);
 
   const res = await fetch(dataUrl);
   return res.blob();
@@ -43,13 +80,13 @@ async function captureCardElement(ratio: AspectRatio): Promise<Blob> {
 export async function exportCurrentSlide(
   post: Post,
   currentSlide: number,
-  _theme: ThemeName,
+  theme: ThemeName,
   ratio: AspectRatio,
   setProgress: (msg: string) => void
 ) {
   setProgress("Rendering...");
   try {
-    const blob = await captureCardElement(ratio);
+    const blob = await captureCardOffscreen(post, currentSlide, theme, ratio);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -65,7 +102,7 @@ export async function exportCurrentSlide(
 
 export async function exportAllSlides(
   post: Post,
-  _theme: ThemeName,
+  theme: ThemeName,
   ratio: AspectRatio,
   setProgress: (msg: string) => void,
   setCurrentSlide: (i: number) => void,
@@ -79,8 +116,7 @@ export async function exportAllSlides(
     for (let i = 0; i < slides.length; i++) {
       setProgress(`Rendering slide ${i + 1} / ${slides.length}...`);
       setCurrentSlide(i);
-      await new Promise((r) => setTimeout(r, 200));
-      const blob = await captureCardElement(ratio);
+      const blob = await captureCardOffscreen(post, i, theme, ratio);
       const typeName = slides[i].type.toLowerCase().replace(/\s+/g, "_");
       folder.file(`slide_${i + 1}_${typeName}.png`, blob);
     }
@@ -104,6 +140,63 @@ export async function exportAllSlides(
 
   setCurrentSlide(originalSlide);
   setTimeout(() => setProgress(""), 3000);
+}
+
+export interface BulkExportProgress {
+  current: number;
+  total: number;
+  label: string;
+}
+
+export async function exportAllPosts(
+  posts: Post[],
+  theme: ThemeName,
+  ratios: AspectRatio[],
+  onProgress: (p: BulkExportProgress) => void,
+  signal?: AbortSignal
+): Promise<void> {
+  const zip = new JSZip();
+  const totalSlides = posts.reduce((n, p) => n + p.slides.length, 0) * ratios.length;
+  let rendered = 0;
+
+  for (const post of posts) {
+    if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+
+    const postFolder = zip.folder(`day${post.day}_${post.title.replace(/[^a-zA-Z0-9]+/g, "_").toLowerCase()}`)!;
+
+    for (const ratio of ratios) {
+      const ratioFolder = ratios.length > 1 ? postFolder.folder(ratio.replace(":", "x"))! : postFolder;
+
+      for (let i = 0; i < post.slides.length; i++) {
+        if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+
+        rendered++;
+        onProgress({
+          current: rendered,
+          total: totalSlides,
+          label: `Day ${post.day} — slide ${i + 1}/${post.slides.length}${ratios.length > 1 ? ` (${ratio})` : ""}`,
+        });
+
+        const blob = await captureCardOffscreen(post, i, theme, ratio);
+        const typeName = post.slides[i].type.toLowerCase().replace(/\s+/g, "_");
+        ratioFolder.file(`slide_${i + 1}_${typeName}.png`, blob);
+      }
+    }
+
+    // Add caption per post
+    const cleanHL = post.slides[0].headline.replace(/\*\*/g, "");
+    const caption = `${cleanHL}\n\n${post.slides[0].sub}\n\nSwipe through for the full truth. \u27A1\uFE0F\n\n${HASHTAGS}`;
+    postFolder.file("caption.txt", caption);
+  }
+
+  onProgress({ current: totalSlides, total: totalSlides, label: "Zipping..." });
+  const zipBlob = await zip.generateAsync({ type: "blob" });
+  const url = URL.createObjectURL(zipBlob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `heda_all_posts_carousel.zip`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 export async function exportReelCommand(

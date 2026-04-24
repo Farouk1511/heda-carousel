@@ -21,6 +21,7 @@ interface EditPanelProps {
   onSetExportRatio: (r: AspectRatio) => void;
   onSetCurrentSlide: (i: number) => void;
   postIndex: number;
+  onOpenBulkExport: () => void;
 }
 
 export const EditPanel: React.FC<EditPanelProps> = ({
@@ -35,6 +36,7 @@ export const EditPanel: React.FC<EditPanelProps> = ({
   onSetExportRatio,
   onSetCurrentSlide,
   postIndex,
+  onOpenBulkExport,
 }) => {
   const progressRef = useRef<HTMLDivElement>(null);
 
@@ -149,6 +151,13 @@ export const EditPanel: React.FC<EditPanelProps> = ({
       </button>
       <button className="export-btn-secondary" onClick={handleExportReel}>
         ↓ Reel MP4 — Copy Render Command
+      </button>
+      <button
+        className="export-btn-primary"
+        style={{ marginTop: 12 }}
+        onClick={onOpenBulkExport}
+      >
+        ↓ Export All Posts
       </button>
       <div className="export-progress" ref={progressRef} />
 

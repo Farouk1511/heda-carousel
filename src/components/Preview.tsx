@@ -1,6 +1,7 @@
 import React from "react";
 import type { Post } from "../data/posts";
 import type { ThemeName } from "../data/themes";
+import type { AspectRatio } from "../hooks/useCarouselState";
 import { Card } from "./Card";
 
 interface PreviewProps {
@@ -13,6 +14,7 @@ interface PreviewProps {
   onGoSlide: (i: number) => void;
   onToggleSidebar: () => void;
   selectedPostIndex: number;
+  exportRatio: AspectRatio;
 }
 
 export const Preview: React.FC<PreviewProps> = ({
@@ -25,6 +27,7 @@ export const Preview: React.FC<PreviewProps> = ({
   onGoSlide,
   onToggleSidebar,
   selectedPostIndex,
+  exportRatio,
 }) => {
   const slides = post.slides;
 
@@ -75,6 +78,7 @@ export const Preview: React.FC<PreviewProps> = ({
             slideIndex={currentSlide}
             theme={theme}
             className="card-export-target"
+            aspectRatio={exportRatio}
           />
         </div>
       </div>

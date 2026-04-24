@@ -1,8 +1,21 @@
 import React from "react";
 import type { Post } from "../data/posts";
 import type { ThemeName } from "../data/themes";
+import type { AspectRatio } from "../hooks/useCarouselState";
 import { BoldText } from "./BoldText";
 import { CardDots } from "./CardDots";
+
+function getAspectRatioCSS(ratio: AspectRatio): string {
+  switch (ratio) {
+    case "1:1":
+      return "1 / 1";
+    case "9:16":
+      return "9 / 16";
+    case "4:5":
+    default:
+      return "4 / 5";
+  }
+}
 
 interface CardProps {
   post: Post;
@@ -14,6 +27,7 @@ interface CardProps {
   logoSrc?: string;
   animationProgress?: number;
   dotAnimationProgress?: number;
+  aspectRatio?: AspectRatio;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -26,6 +40,7 @@ export const Card: React.FC<CardProps> = ({
   logoSrc = "/LOGO.png",
   animationProgress = 1,
   dotAnimationProgress = 1,
+  aspectRatio = "4:5",
 }) => {
   const slide = post.slides[slideIndex];
   const total = post.slides.length;
@@ -68,7 +83,7 @@ export const Card: React.FC<CardProps> = ({
     width: width ?? "100%",
     maxWidth: width ? undefined : 400,
     height: height ?? undefined,
-    aspectRatio: width ? undefined : "4 / 5",
+    aspectRatio: width ? undefined : getAspectRatioCSS(aspectRatio),
     borderRadius: width ? 0 : 16,
     padding: `${32 * s}px ${28 * s}px`,
     display: "flex",
