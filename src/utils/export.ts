@@ -24,7 +24,8 @@ async function captureCardOffscreen(
   post: Post,
   slideIndex: number,
   theme: ThemeName,
-  ratio: AspectRatio
+  ratio: AspectRatio,
+  logoScale: number
 ): Promise<Blob> {
   const { w, h } = getExportDimensions(ratio);
 
@@ -50,6 +51,7 @@ async function captureCardOffscreen(
       width: w,
       height: h,
       logoSrc: "/LOGO.png",
+      logoScale,
     })
   );
 
@@ -82,15 +84,16 @@ export async function exportCurrentSlide(
   currentSlide: number,
   theme: ThemeName,
   ratio: AspectRatio,
+  logoScale: number,
   setProgress: (msg: string) => void
 ) {
   setProgress("Rendering...");
   try {
-    const blob = await captureCardOffscreen(post, currentSlide, theme, ratio);
+    const blob = await captureCardOffscreen(post, currentSlide, theme, ratio, logoScale);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `heda_day${post.day}_slide${currentSlide + 1}.png`;
+    a.download = `heda_post${post.id}_day${post.day}_slide${currentSlide + 1}.png`;
     a.click();
     URL.revokeObjectURL(url);
     setProgress("Downloaded \u2713");
@@ -104,19 +107,20 @@ export async function exportAllSlides(
   post: Post,
   theme: ThemeName,
   ratio: AspectRatio,
+  logoScale: number,
   setProgress: (msg: string) => void,
   setCurrentSlide: (i: number) => void,
   originalSlide: number
 ) {
   const slides = post.slides;
   const zip = new JSZip();
-  const folder = zip.folder(`heda_day${post.day}`)!;
+  const folder = zip.folder(`heda_post${post.id}_day${post.day}`)!;
 
   try {
     for (let i = 0; i < slides.length; i++) {
       setProgress(`Rendering slide ${i + 1} / ${slides.length}...`);
       setCurrentSlide(i);
-      const blob = await captureCardOffscreen(post, i, theme, ratio);
+      const blob = await captureCardOffscreen(post, i, theme, ratio, logoScale);
       const typeName = slides[i].type.toLowerCase().replace(/\s+/g, "_");
       folder.file(`slide_${i + 1}_${typeName}.png`, blob);
     }
@@ -130,7 +134,7 @@ export async function exportAllSlides(
     const url = URL.createObjectURL(zipBlob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `heda_day${post.day}_carousel.zip`;
+    a.download = `heda_post${post.id}_day${post.day}_carousel.zip`;
     a.click();
     URL.revokeObjectURL(url);
     setProgress(`${slides.length} slides + caption downloaded \u2713`);
@@ -152,6 +156,7 @@ export async function exportAllPosts(
   posts: Post[],
   theme: ThemeName,
   ratios: AspectRatio[],
+  logoScale: number,
   onProgress: (p: BulkExportProgress) => void,
   signal?: AbortSignal
 ): Promise<void> {
@@ -162,7 +167,9 @@ export async function exportAllPosts(
   for (const post of posts) {
     if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
 
-    const postFolder = zip.folder(`day${post.day}_${post.title.replace(/[^a-zA-Z0-9]+/g, "_").toLowerCase()}`)!;
+    const postFolder = zip.folder(
+      `post${post.id}_day${post.day}_${post.title.replace(/[^a-zA-Z0-9]+/g, "_").toLowerCase()}`
+    )!;
 
     for (const ratio of ratios) {
       const ratioFolder = ratios.length > 1 ? postFolder.folder(ratio.replace(":", "x"))! : postFolder;
@@ -177,7 +184,7 @@ export async function exportAllPosts(
           label: `Day ${post.day} — slide ${i + 1}/${post.slides.length}${ratios.length > 1 ? ` (${ratio})` : ""}`,
         });
 
-        const blob = await captureCardOffscreen(post, i, theme, ratio);
+        const blob = await captureCardOffscreen(post, i, theme, ratio, logoScale);
         const typeName = post.slides[i].type.toLowerCase().replace(/\s+/g, "_");
         ratioFolder.file(`slide_${i + 1}_${typeName}.png`, blob);
       }
@@ -203,9 +210,10 @@ export async function exportReelCommand(
   postIndex: number,
   postDay: number,
   theme: ThemeName,
+  logoScale: number,
   setProgress: (msg: string) => void
 ) {
-  const command = `npm run render:reel -- --props='{"postIndex":${postIndex},"theme":"${theme}"}'`;
+  const command = `npm run render:reel -- --props='{"postIndex":${postIndex},"theme":"${theme}","logoScale":${logoScale}}'`;
   try {
     await navigator.clipboard.writeText(command);
     setProgress(`Render command copied for day ${postDay}`);

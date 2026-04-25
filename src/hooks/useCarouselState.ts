@@ -12,6 +12,7 @@ export interface CarouselState {
   editingSlide: number | null;
   sidebarCollapsed: boolean;
   exportRatio: AspectRatio;
+  logoScale: number;
 }
 
 export function useCarouselState() {
@@ -24,6 +25,7 @@ export function useCarouselState() {
   const [editingSlide, setEditingSlide] = useState<number | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [exportRatio, setExportRatio] = useState<AspectRatio>("4:5");
+  const [logoScale, setLogoScale] = useState(1);
 
   const post = posts[selectedPost];
   const slides = post.slides;
@@ -83,6 +85,7 @@ export function useCarouselState() {
     editingSlide,
     sidebarCollapsed,
     exportRatio,
+    logoScale,
     post,
     slides,
     slide,
@@ -95,6 +98,7 @@ export function useCarouselState() {
     updateField,
     toggleSidebar,
     setExportRatio,
+    setLogoScale,
     setCurrentSlide,
   };
 }

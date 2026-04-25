@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useMemo } from "react";
 import type { Post } from "../data/posts";
-import { WEEKS } from "../data/posts";
+import { POST_MONTHS } from "../data/posts";
 import type { ThemeName } from "../data/themes";
 import type { AspectRatio } from "../hooks/useCarouselState";
 import { exportAllPosts, type BulkExportProgress } from "../utils/export";
@@ -8,6 +8,7 @@ import { exportAllPosts, type BulkExportProgress } from "../utils/export";
 interface BulkExportModalProps {
   posts: Post[];
   theme: ThemeName;
+  logoScale: number;
   onClose: () => void;
 }
 
@@ -16,6 +17,7 @@ const RATIOS: AspectRatio[] = ["1:1", "4:5", "9:16"];
 export const BulkExportModal: React.FC<BulkExportModalProps> = ({
   posts,
   theme,
+  logoScale,
   onClose,
 }) => {
   const [selectedRatios, setSelectedRatios] = useState<Set<AspectRatio>>(
@@ -27,13 +29,29 @@ export const BulkExportModal: React.FC<BulkExportModalProps> = ({
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState<BulkExportProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [openMonthIndex, setOpenMonthIndex] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
 
-  const postsByWeek = useMemo(() => {
-    return WEEKS.map((w) => ({
-      week: w,
-      posts: posts.filter((p) => p.week === w.num),
-    })).filter((g) => g.posts.length > 0);
+  const postsByMonth = useMemo(() => {
+    let weekNum = 1;
+    let postCursor = 0;
+
+    return POST_MONTHS.map((month, monthIndex) => ({
+      key: `month-${monthIndex + 1}`,
+      title: month.title,
+      weeks: month.weeks.map((week) => {
+        const weekPosts = posts.slice(postCursor, postCursor + week.posts.length);
+        postCursor += week.posts.length;
+
+        return {
+          week: {
+            num: weekNum++,
+            title: week.title,
+          },
+          posts: weekPosts,
+        };
+      }),
+    }));
   }, [posts]);
 
   const toggleRatio = (r: AspectRatio) => {
@@ -69,6 +87,20 @@ export const BulkExportModal: React.FC<BulkExportModalProps> = ({
     });
   };
 
+  const toggleMonth = (monthPosts: Post[]) => {
+    setSelectedPostIds((prev) => {
+      const next = new Set(prev);
+      const allSelected = monthPosts.every((p) => prev.has(p.id));
+
+      for (const post of monthPosts) {
+        if (allSelected) next.delete(post.id);
+        else next.add(post.id);
+      }
+
+      return next;
+    });
+  };
+
   const selectAll = () => setSelectedPostIds(new Set(posts.map((p) => p.id)));
   const selectNone = () => setSelectedPostIds(new Set());
 
@@ -92,6 +124,7 @@ export const BulkExportModal: React.FC<BulkExportModalProps> = ({
         selectedPosts,
         theme,
         Array.from(selectedRatios),
+        logoScale,
         setProgress,
         abortRef.current.signal
       );
@@ -170,35 +203,64 @@ export const BulkExportModal: React.FC<BulkExportModalProps> = ({
           </div>
 
           <div className="bulk-modal-posts">
-            {postsByWeek.map(({ week, posts: wp }) => {
-              const allChecked = wp.every((p) => selectedPostIds.has(p.id));
-              const someChecked = wp.some((p) => selectedPostIds.has(p.id));
+            {postsByMonth.map((month, monthIndex) => {
+              const monthPosts = month.weeks.flatMap((group) => group.posts);
+              const monthAllChecked = monthPosts.every((p) => selectedPostIds.has(p.id));
+              const monthSomeChecked = monthPosts.some((p) => selectedPostIds.has(p.id));
+              const isOpen = monthIndex === openMonthIndex;
+
               return (
-                <div className="bulk-week-group" key={week.num}>
-                  <label
-                    className="bulk-week-header"
-                    onClick={() => !running && toggleWeek(wp)}
+                <div className="bulk-month-group" key={month.key}>
+                  <div
+                    className={`bulk-month-header${isOpen ? " open" : ""}`}
+                    onClick={() => !running && setOpenMonthIndex(isOpen ? -1 : monthIndex)}
                   >
                     <span
-                      className={`bulk-check${allChecked ? " checked" : someChecked ? " partial" : ""}`}
+                      className={`bulk-check${monthAllChecked ? " checked" : monthSomeChecked ? " partial" : ""}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!running) toggleMonth(monthPosts);
+                      }}
                     />
-                    <span className="bulk-week-title">
-                      Week {week.num} — {week.title}
-                    </span>
-                  </label>
-                  {wp.map((p) => (
-                    <label
-                      className="bulk-post-row"
-                      key={p.id}
-                      onClick={() => !running && togglePost(p.id)}
-                    >
-                      <span
-                        className={`bulk-check${selectedPostIds.has(p.id) ? " checked" : ""}`}
-                      />
-                      <span className="bulk-post-day">Day {p.day}</span>
-                      <span className="bulk-post-title">{p.title}</span>
-                    </label>
-                  ))}
+                    <span className="bulk-month-title">{month.title}</span>
+                    <span className="bulk-month-count">{monthPosts.length} posts</span>
+                    <span className="bulk-month-icon">{isOpen ? "-" : "+"}</span>
+                  </div>
+
+                  {isOpen &&
+                    month.weeks.map(({ week, posts: wp }) => {
+                      const allChecked = wp.every((p) => selectedPostIds.has(p.id));
+                      const someChecked = wp.some((p) => selectedPostIds.has(p.id));
+
+                      return (
+                        <div className="bulk-week-group" key={week.num}>
+                          <label
+                            className="bulk-week-header"
+                            onClick={() => !running && toggleWeek(wp)}
+                          >
+                            <span
+                              className={`bulk-check${allChecked ? " checked" : someChecked ? " partial" : ""}`}
+                            />
+                            <span className="bulk-week-title">
+                              Week {week.num} — {week.title}
+                            </span>
+                          </label>
+                          {wp.map((p) => (
+                            <label
+                              className="bulk-post-row"
+                              key={p.id}
+                              onClick={() => !running && togglePost(p.id)}
+                            >
+                              <span
+                                className={`bulk-check${selectedPostIds.has(p.id) ? " checked" : ""}`}
+                              />
+                              <span className="bulk-post-day">Day {p.day}</span>
+                              <span className="bulk-post-title">{p.title}</span>
+                            </label>
+                          ))}
+                        </div>
+                      );
+                    })}
                 </div>
               );
             })}

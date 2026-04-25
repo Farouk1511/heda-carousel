@@ -27,6 +27,7 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           postIndex: defaultPost,
           theme: "standard" as const,
+          logoScale: 1,
         }}
         calculateMetadata={({ props }) => {
           const castProps = props as unknown as ReelProps;

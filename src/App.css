@@ -56,11 +56,47 @@ body {
 .logo-sub { font-size: 11px; color: var(--text-40); letter-spacing: 0.05em; margin-bottom: 24px; font-family: var(--font-mono); }
 .post-count { font-size: 11px; font-weight: 700; color: var(--accent-light); letter-spacing: 0.1em; margin-bottom: 16px; font-family: var(--font-mono); }
 
+.month-group {
+  margin-bottom: 12px;
+}
+
+.month-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--accent-10);
+  border-radius: 10px;
+  background: rgba(112, 91, 207, 0.04);
+  color: var(--text-70);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.month-toggle:hover,
+.month-toggle.open {
+  border-color: rgba(112, 91, 207, 0.24);
+  background: rgba(112, 91, 207, 0.1);
+  color: var(--accent-light);
+}
+
+.month-toggle-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
 .week-label {
   font-size: 10px; font-weight: 700; letter-spacing: 0.15em;
   color: var(--text-30); margin-bottom: 8px; font-family: var(--font-mono); text-transform: uppercase;
 }
-.week-group { margin-bottom: 20px; }
+.week-group { margin-bottom: 20px; padding-left: 6px; }
 
 .post-item {
   padding: 8px 12px; margin-bottom: 2px; border-radius: 8px;
@@ -209,6 +245,42 @@ body {
   border-color: var(--accent); background: rgba(112,91,207,0.15); color: var(--accent-light);
 }
 
+.size-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.size-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--accent-15);
+  background: transparent;
+  color: var(--accent-light);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.size-btn:hover {
+  background: rgba(112,91,207,0.08);
+}
+
+.size-value {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--accent-15);
+  background: rgba(255,255,255,0.02);
+  color: var(--text-70);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  text-align: center;
+}
+
 .caption-preview {
   padding: 14px; background: rgba(112,91,207,0.04); border-radius: 10px;
   border: 1px solid rgba(112,91,207,0.08); font-size: 12px;
@@ -300,12 +372,62 @@ body {
 .bulk-modal-posts::-webkit-scrollbar-track { background: transparent; }
 .bulk-modal-posts::-webkit-scrollbar-thumb { background: var(--accent-20); border-radius: 2px; }
 
-.bulk-week-group { border-bottom: 1px solid var(--accent-10); }
-.bulk-week-group:last-child { border-bottom: none; }
+.bulk-month-group {
+  border-bottom: 1px solid var(--accent-10);
+}
+
+.bulk-month-group:last-child {
+  border-bottom: none;
+}
+
+.bulk-month-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(112, 91, 207, 0.04);
+  transition: background 0.2s ease;
+}
+
+.bulk-month-header:hover,
+.bulk-month-header.open {
+  background: rgba(112, 91, 207, 0.08);
+}
+
+.bulk-month-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-family: var(--font-mono);
+  color: var(--text-75);
+  text-transform: uppercase;
+}
+
+.bulk-month-count {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-35);
+  font-family: var(--font-mono);
+}
+
+.bulk-month-icon {
+  width: 16px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--accent-light);
+  font-family: var(--font-mono);
+}
+
+.bulk-week-group {
+  border-top: 1px solid var(--accent-10);
+}
 
 .bulk-week-header {
   display: flex; align-items: center; gap: 10px;
-  padding: 8px 12px; cursor: pointer; user-select: none;
+  padding: 8px 12px 8px 18px; cursor: pointer; user-select: none;
   font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
   font-family: var(--font-mono); color: var(--text-40);
   text-transform: uppercase;
@@ -314,7 +436,7 @@ body {
 
 .bulk-post-row {
   display: flex; align-items: center; gap: 10px;
-  padding: 5px 12px 5px 28px; cursor: pointer; user-select: none;
+  padding: 5px 12px 5px 34px; cursor: pointer; user-select: none;
 }
 .bulk-post-row:hover { background: rgba(112,91,207,0.05); }
 .bulk-post-day {

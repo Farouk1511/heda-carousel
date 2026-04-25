@@ -28,6 +28,7 @@ interface CardProps {
   animationProgress?: number;
   dotAnimationProgress?: number;
   aspectRatio?: AspectRatio;
+  logoScale?: number;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -41,6 +42,7 @@ export const Card: React.FC<CardProps> = ({
   animationProgress = 1,
   dotAnimationProgress = 1,
   aspectRatio = "4:5",
+  logoScale = 1,
 }) => {
   const slide = post.slides[slideIndex];
   const total = post.slides.length;
@@ -122,8 +124,8 @@ export const Card: React.FC<CardProps> = ({
           position: "absolute",
           top: 16 * s,
           right: 16 * s,
-          width: 32 * s,
-          height: 32 * s,
+          width: 32 * s * logoScale,
+          height: 32 * s * logoScale,
           objectFit: "contain",
           pointerEvents: "none",
           zIndex: 2,

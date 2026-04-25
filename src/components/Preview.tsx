@@ -15,6 +15,7 @@ interface PreviewProps {
   onToggleSidebar: () => void;
   selectedPostIndex: number;
   exportRatio: AspectRatio;
+  logoScale: number;
 }
 
 export const Preview: React.FC<PreviewProps> = ({
@@ -28,6 +29,7 @@ export const Preview: React.FC<PreviewProps> = ({
   onToggleSidebar,
   selectedPostIndex,
   exportRatio,
+  logoScale,
 }) => {
   const slides = post.slides;
 
@@ -79,6 +81,7 @@ export const Preview: React.FC<PreviewProps> = ({
             theme={theme}
             className="card-export-target"
             aspectRatio={exportRatio}
+            logoScale={logoScale}
           />
         </div>
       </div>

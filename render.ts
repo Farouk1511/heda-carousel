@@ -14,15 +14,21 @@ function parsePropsArg(args: string[]) {
   }
   const raw = propsArg.slice("--props=".length);
   try {
-    return JSON.parse(raw) as { postIndex?: number; theme?: "standard" | "deep" };
+    return JSON.parse(raw) as {
+      postIndex?: number;
+      theme?: "standard" | "deep";
+      logoScale?: number;
+    };
   } catch {
-    const loose = /^\{\s*postIndex\s*:\s*(\d+)\s*,\s*theme\s*:\s*(standard|deep)\s*\}$/i.exec(
+    const loose =
+      /^\{\s*postIndex\s*:\s*(\d+)\s*,\s*theme\s*:\s*(standard|deep)(?:\s*,\s*logoScale\s*:\s*([\d.]+))?\s*\}$/i.exec(
       raw
-    );
+      );
     if (loose) {
       return {
         postIndex: Number(loose[1]),
         theme: loose[2].toLowerCase() as "standard" | "deep",
+        logoScale: loose[3] ? Number(loose[3]) : undefined,
       };
     }
     throw new Error(
@@ -47,6 +53,7 @@ async function main() {
 
   let postIndex = parsedProps?.postIndex ?? 0;
   let theme: "standard" | "deep" = parsedProps?.theme ?? "standard";
+  let logoScale = parsedProps?.logoScale ?? 1;
   const reelId = getArg(args, "--reel-id") ?? "heda-community-reel";
   const durationPresetOverride = getArg(args, "--duration-preset") as
     | "8s"
@@ -61,6 +68,9 @@ async function main() {
 
   const themeArg = args.find((a) => a.startsWith("--theme="));
   if (themeArg) theme = themeArg.split("=")[1] as "standard" | "deep";
+
+  const logoScaleArg = args.find((a) => a.startsWith("--logo-scale="));
+  if (logoScaleArg) logoScale = Number(logoScaleArg.split("=")[1]) || 1;
 
   console.log("Bundling Remotion project...");
   const bundleLocation = await bundle({
@@ -131,7 +141,7 @@ async function main() {
     const post = POSTS[idx];
     console.log(`\nRendering Post ${idx + 1}: "${post.title}" (Day ${post.day})...`);
 
-    const inputProps = { postIndex: idx, theme };
+    const inputProps = { postIndex: idx, theme, logoScale };
 
     const composition = await selectComposition({
       serveUrl: bundleLocation,
@@ -145,7 +155,7 @@ async function main() {
     }
     const outputLocation = path.join(
       outDir,
-      `heda_day${post.day}_reel_${theme}.mp4`
+      `heda_post${post.id}_day${post.day}_reel_${theme}.mp4`
     );
 
     await renderMedia({

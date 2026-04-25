@@ -31,11 +31,12 @@ loadJetBrainsMono("normal", {
 export interface ReelProps {
   postIndex: number;
   theme: ThemeName;
+  logoScale?: number;
 }
 
 const cleanHeadline = (value: string): string => value.replace(/\*\*/g, "");
 
-export const ReelComposition: React.FC<ReelProps> = ({ postIndex, theme }) => {
+export const ReelComposition: React.FC<ReelProps> = ({ postIndex, theme, logoScale = 1 }) => {
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
 
@@ -65,6 +66,7 @@ export const ReelComposition: React.FC<ReelProps> = ({ postIndex, theme }) => {
           width={width}
           height={height}
           logoSrc={staticFile("LOGO.png")}
+          logoScale={logoScale}
           animationProgress={1}
           dotAnimationProgress={1}
         />
@@ -165,6 +167,7 @@ export const ReelComposition: React.FC<ReelProps> = ({ postIndex, theme }) => {
           width={width}
           height={height}
           logoSrc={staticFile("LOGO.png")}
+          logoScale={logoScale}
           animationProgress={textProgress}
           dotAnimationProgress={dotProgress}
         />

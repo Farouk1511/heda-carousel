@@ -29,6 +29,7 @@ function App() {
         onToggleSidebar={state.toggleSidebar}
         selectedPostIndex={state.selectedPost}
         exportRatio={state.exportRatio}
+        logoScale={state.logoScale}
       />
       <EditPanel
         post={state.post}
@@ -36,10 +37,12 @@ function App() {
         theme={state.theme}
         editingSlide={state.editingSlide}
         exportRatio={state.exportRatio}
+        logoScale={state.logoScale}
         onSetTheme={state.setTheme}
         onToggleEdit={state.toggleEdit}
         onUpdateField={state.updateField}
         onSetExportRatio={state.setExportRatio}
+        onSetLogoScale={state.setLogoScale}
         onSetCurrentSlide={state.setCurrentSlide}
         postIndex={state.selectedPost}
         onOpenBulkExport={() => setBulkExportOpen(true)}
@@ -48,6 +51,7 @@ function App() {
         <BulkExportModal
           posts={state.posts}
           theme={state.theme}
+          logoScale={state.logoScale}
           onClose={() => setBulkExportOpen(false)}
         />
       )}

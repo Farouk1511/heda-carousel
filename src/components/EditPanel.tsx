@@ -15,10 +15,12 @@ interface EditPanelProps {
   theme: ThemeName;
   editingSlide: number | null;
   exportRatio: AspectRatio;
+  logoScale: number;
   onSetTheme: (t: ThemeName) => void;
   onToggleEdit: (i: number) => void;
   onUpdateField: (slideIdx: number, field: "headline" | "sub", value: string) => void;
   onSetExportRatio: (r: AspectRatio) => void;
+  onSetLogoScale: (value: number) => void;
   onSetCurrentSlide: (i: number) => void;
   postIndex: number;
   onOpenBulkExport: () => void;
@@ -30,10 +32,12 @@ export const EditPanel: React.FC<EditPanelProps> = ({
   theme,
   editingSlide,
   exportRatio,
+  logoScale,
   onSetTheme,
   onToggleEdit,
   onUpdateField,
   onSetExportRatio,
+  onSetLogoScale,
   onSetCurrentSlide,
   postIndex,
   onOpenBulkExport,
@@ -48,7 +52,7 @@ export const EditPanel: React.FC<EditPanelProps> = ({
   const captionHTML = `${cleanHL} \u{1F4AA}\n\n${post.slides[0].sub}\n\nSwipe through for the full truth. \u27A1\uFE0F\n\n${HASHTAGS}`;
 
   const handleExportCurrent = async () => {
-    await exportCurrentSlide(post, currentSlide, theme, exportRatio, setProgress);
+    await exportCurrentSlide(post, currentSlide, theme, exportRatio, logoScale, setProgress);
   };
 
   const handleExportAll = async () => {
@@ -56,6 +60,7 @@ export const EditPanel: React.FC<EditPanelProps> = ({
       post,
       theme,
       exportRatio,
+      logoScale,
       setProgress,
       onSetCurrentSlide,
       currentSlide
@@ -63,7 +68,7 @@ export const EditPanel: React.FC<EditPanelProps> = ({
   };
 
   const handleExportReel = async () => {
-    await exportReelCommand(postIndex, post.day, theme, setProgress);
+    await exportReelCommand(postIndex, post.day, theme, logoScale, setProgress);
   };
 
   return (
@@ -142,6 +147,27 @@ export const EditPanel: React.FC<EditPanelProps> = ({
             {r}
           </button>
         ))}
+      </div>
+      <div
+        className="section-label"
+        style={{ marginTop: 0, marginBottom: 6, fontSize: 10, opacity: 0.5 }}
+      >
+        LOGO SIZE
+      </div>
+      <div className="size-control">
+        <button
+          className="size-btn"
+          onClick={() => onSetLogoScale(Math.max(0.75, Number((logoScale - 0.1).toFixed(2))))}
+        >
+          -
+        </button>
+        <div className="size-value">{Math.round(logoScale * 100)}%</div>
+        <button
+          className="size-btn"
+          onClick={() => onSetLogoScale(Math.min(2.5, Number((logoScale + 0.1).toFixed(2))))}
+        >
+          +
+        </button>
       </div>
       <button className="export-btn-primary" onClick={handleExportAll}>
         ↓ ZIP — All Slides + Caption
