@@ -30,6 +30,8 @@ function App() {
         selectedPostIndex={state.selectedPost}
         exportRatio={state.exportRatio}
         logoScale={state.logoScale}
+        onPatchMockup={state.patchMockup}
+        onPatchTextTransform={state.patchTextTransform}
       />
       <EditPanel
         post={state.post}
@@ -41,6 +43,11 @@ function App() {
         onSetTheme={state.setTheme}
         onToggleEdit={state.toggleEdit}
         onUpdateField={state.updateField}
+        onUpdateMockup={state.updateMockup}
+        onPatchMockup={state.patchMockup}
+        onSetMockupLayout={state.setMockupLayout}
+        onPatchTextTransform={state.patchTextTransform}
+        onRemoveMockup={state.removeMockup}
         onSetExportRatio={state.setExportRatio}
         onSetLogoScale={state.setLogoScale}
         onSetCurrentSlide={state.setCurrentSlide}

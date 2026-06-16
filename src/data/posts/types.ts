@@ -1,8 +1,30 @@
+export type MockupLayout = "free" | "text-top" | "text-bottom" | "text-left" | "text-right";
+
+export interface SlideTextTransform {
+  offsetX: number;
+  offsetY: number;
+  scale: number;
+}
+
+export interface SlideMockup {
+  src: string;
+  name?: string;
+  layout: MockupLayout;
+  offsetX: number;
+  offsetY: number;
+  scale: number;
+  fit: "contain";
+}
+
 export interface Slide {
   type: string;
   headline: string;
   sub: string;
   cta?: string;
+  mockup?: SlideMockup;
+  textTransform?: SlideTextTransform;
+  image?: string;
+  imageDesc?: string;
 }
 
 export interface Post {

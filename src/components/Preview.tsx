@@ -1,5 +1,5 @@
 import React from "react";
-import type { Post } from "../data/posts";
+import type { Post, SlideMockup, SlideTextTransform } from "../data/posts";
 import type { ThemeName } from "../data/themes";
 import type { AspectRatio } from "../hooks/useCarouselState";
 import { Card } from "./Card";
@@ -16,6 +16,8 @@ interface PreviewProps {
   selectedPostIndex: number;
   exportRatio: AspectRatio;
   logoScale: number;
+  onPatchMockup: (slideIdx: number, patch: Partial<SlideMockup>) => void;
+  onPatchTextTransform: (slideIdx: number, patch: Partial<SlideTextTransform>) => void;
 }
 
 export const Preview: React.FC<PreviewProps> = ({
@@ -30,6 +32,8 @@ export const Preview: React.FC<PreviewProps> = ({
   selectedPostIndex,
   exportRatio,
   logoScale,
+  onPatchMockup,
+  onPatchTextTransform,
 }) => {
   const slides = post.slides;
 
@@ -82,6 +86,8 @@ export const Preview: React.FC<PreviewProps> = ({
             className="card-export-target"
             aspectRatio={exportRatio}
             logoScale={logoScale}
+            onMockupTransformChange={onPatchMockup}
+            onTextTransformChange={onPatchTextTransform}
           />
         </div>
       </div>

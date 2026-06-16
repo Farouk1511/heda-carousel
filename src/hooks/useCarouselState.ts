@@ -1,5 +1,11 @@
 import { useState, useCallback } from "react";
-import { POSTS, type Post } from "../data/posts";
+import {
+  POSTS,
+  type MockupLayout,
+  type Post,
+  type SlideMockup,
+  type SlideTextTransform,
+} from "../data/posts";
 import type { ThemeName } from "../data/themes";
 
 export type AspectRatio = "1:1" | "4:5" | "9:16";
@@ -73,6 +79,89 @@ export function useCarouselState() {
     [selectedPost]
   );
 
+  const updateMockup = useCallback(
+    (slideIdx: number, mockup: SlideMockup) => {
+      setPosts((prev) => {
+        const next = [...prev];
+        next[selectedPost] = {
+          ...next[selectedPost],
+          slides: next[selectedPost].slides.map((s, i) =>
+            i === slideIdx ? { ...s, mockup } : s
+          ),
+        };
+        return next;
+      });
+    },
+    [selectedPost]
+  );
+
+  const patchMockup = useCallback(
+    (slideIdx: number, patch: Partial<SlideMockup>) => {
+      setPosts((prev) => {
+        const next = [...prev];
+        next[selectedPost] = {
+          ...next[selectedPost],
+          slides: next[selectedPost].slides.map((s, i) =>
+            i === slideIdx && s.mockup
+              ? { ...s, mockup: { ...s.mockup, ...patch } }
+              : s
+          ),
+        };
+        return next;
+      });
+    },
+    [selectedPost]
+  );
+
+  const setMockupLayout = useCallback(
+    (slideIdx: number, layout: MockupLayout) => {
+      patchMockup(slideIdx, { layout, offsetX: 0, offsetY: 0 });
+    },
+    [patchMockup]
+  );
+
+  const patchTextTransform = useCallback(
+    (slideIdx: number, patch: Partial<SlideTextTransform>) => {
+      setPosts((prev) => {
+        const next = [...prev];
+        next[selectedPost] = {
+          ...next[selectedPost],
+          slides: next[selectedPost].slides.map((s, i) => {
+            if (i !== slideIdx || !s.mockup) return s;
+            const textTransform = {
+              offsetX: 0,
+              offsetY: 0,
+              scale: 1,
+              ...s.textTransform,
+              ...patch,
+            };
+            return { ...s, textTransform };
+          }),
+        };
+        return next;
+      });
+    },
+    [selectedPost]
+  );
+
+  const removeMockup = useCallback(
+    (slideIdx: number) => {
+      setPosts((prev) => {
+        const next = [...prev];
+        next[selectedPost] = {
+          ...next[selectedPost],
+          slides: next[selectedPost].slides.map((s, i) => {
+            if (i !== slideIdx) return s;
+            const { mockup: _mockup, ...slideWithoutMockup } = s;
+            return slideWithoutMockup;
+          }),
+        };
+        return next;
+      });
+    },
+    [selectedPost]
+  );
+
   const toggleSidebar = useCallback(() => {
     setSidebarCollapsed((c) => !c);
   }, []);
@@ -96,6 +185,11 @@ export function useCarouselState() {
     setTheme,
     toggleEdit,
     updateField,
+    updateMockup,
+    patchMockup,
+    setMockupLayout,
+    patchTextTransform,
+    removeMockup,
     toggleSidebar,
     setExportRatio,
     setLogoScale,

@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import type { Post } from "../data/posts";
+import type { MockupLayout, Post, SlideMockup, SlideTextTransform } from "../data/posts";
 import type { ThemeName } from "../data/themes";
 import type { AspectRatio } from "../hooks/useCarouselState";
 import { HASHTAGS } from "../data/posts";
@@ -19,6 +19,11 @@ interface EditPanelProps {
   onSetTheme: (t: ThemeName) => void;
   onToggleEdit: (i: number) => void;
   onUpdateField: (slideIdx: number, field: "headline" | "sub", value: string) => void;
+  onUpdateMockup: (slideIdx: number, mockup: SlideMockup) => void;
+  onPatchMockup: (slideIdx: number, patch: Partial<SlideMockup>) => void;
+  onSetMockupLayout: (slideIdx: number, layout: MockupLayout) => void;
+  onPatchTextTransform: (slideIdx: number, patch: Partial<SlideTextTransform>) => void;
+  onRemoveMockup: (slideIdx: number) => void;
   onSetExportRatio: (r: AspectRatio) => void;
   onSetLogoScale: (value: number) => void;
   onSetCurrentSlide: (i: number) => void;
@@ -36,6 +41,11 @@ export const EditPanel: React.FC<EditPanelProps> = ({
   onSetTheme,
   onToggleEdit,
   onUpdateField,
+  onUpdateMockup,
+  onPatchMockup,
+  onSetMockupLayout,
+  onPatchTextTransform,
+  onRemoveMockup,
   onSetExportRatio,
   onSetLogoScale,
   onSetCurrentSlide,
@@ -70,6 +80,38 @@ export const EditPanel: React.FC<EditPanelProps> = ({
   const handleExportReel = async () => {
     await exportReelCommand(postIndex, post.day, theme, logoScale, setProgress);
   };
+
+  const handleMockupFile = (slideIdx: number, file?: File | null) => {
+    if (!file) return;
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      setProgress("Use a PNG, JPG, or WebP mockup image.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const existing = post.slides[slideIdx].mockup;
+      onUpdateMockup(slideIdx, {
+        src: String(reader.result),
+        name: file.name,
+        layout: existing?.layout ?? "free",
+        offsetX: existing?.offsetX ?? 0,
+        offsetY: existing?.offsetY ?? 0,
+        scale: existing?.scale ?? 1,
+        fit: "contain",
+      });
+    };
+    reader.onerror = () => setProgress("Could not read that image.");
+    reader.readAsDataURL(file);
+  };
+
+  const layoutOptions: { value: MockupLayout; label: string }[] = [
+    { value: "free", label: "Free" },
+    { value: "text-top", label: "Text top" },
+    { value: "text-bottom", label: "Text bottom" },
+    { value: "text-left", label: "Text left" },
+    { value: "text-right", label: "Text right" },
+  ];
 
   return (
     <div className="sidebar-right">
@@ -122,6 +164,122 @@ export const EditPanel: React.FC<EditPanelProps> = ({
                   value={sl.sub}
                   onChange={(e) => onUpdateField(i, "sub", e.target.value)}
                 />
+              </div>
+              <div className="edit-field">
+                <label className="edit-label">MOCKUP IMAGE</label>
+                <div className="mockup-upload-row">
+                  <label className="mockup-upload-btn">
+                    {sl.mockup ? "Replace image" : "Upload mockup"}
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={(e) => {
+                        handleMockupFile(i, e.target.files?.[0]);
+                        e.currentTarget.value = "";
+                      }}
+                    />
+                  </label>
+                  {sl.mockup && (
+                    <button
+                      type="button"
+                      className="mockup-remove-btn"
+                      onClick={() => onRemoveMockup(i)}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+                {sl.mockup && (
+                  <div className="mockup-controls">
+                    <div className="mockup-file-name">{sl.mockup.name ?? "Uploaded mockup"}</div>
+                    <div className="mockup-layout-grid">
+                      {layoutOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          className={`mockup-layout-btn${sl.mockup?.layout === option.value ? " active" : ""}`}
+                          onClick={() => onSetMockupLayout(i, option.value)}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="mockup-control-label">IMAGE SCALE</div>
+                    <div className="mockup-transform-row">
+                      <button
+                        type="button"
+                        className="size-btn"
+                        onClick={() =>
+                          onPatchMockup(i, {
+                            scale: Math.max(0.5, Number((sl.mockup!.scale - 0.1).toFixed(2))),
+                          })
+                        }
+                      >
+                        -
+                      </button>
+                      <div className="size-value">{Math.round(sl.mockup.scale * 100)}%</div>
+                      <button
+                        type="button"
+                        className="size-btn"
+                        onClick={() =>
+                          onPatchMockup(i, {
+                            scale: Math.min(2.5, Number((sl.mockup!.scale + 0.1).toFixed(2))),
+                          })
+                        }
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      className="mockup-reset-btn"
+                      onClick={() => onPatchMockup(i, { offsetX: 0, offsetY: 0, scale: 1 })}
+                    >
+                      Reset image
+                    </button>
+                    <div className="mockup-control-label">TEXT BLOCK</div>
+                    <div className="mockup-transform-row">
+                      <button
+                        type="button"
+                        className="size-btn"
+                        onClick={() =>
+                          onPatchTextTransform(i, {
+                            scale: Math.max(
+                              0.6,
+                              Number(((sl.textTransform?.scale ?? 1) - 0.1).toFixed(2))
+                            ),
+                          })
+                        }
+                      >
+                        -
+                      </button>
+                      <div className="size-value">
+                        {Math.round((sl.textTransform?.scale ?? 1) * 100)}%
+                      </div>
+                      <button
+                        type="button"
+                        className="size-btn"
+                        onClick={() =>
+                          onPatchTextTransform(i, {
+                            scale: Math.min(
+                              1.8,
+                              Number(((sl.textTransform?.scale ?? 1) + 0.1).toFixed(2))
+                            ),
+                          })
+                        }
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      className="mockup-reset-btn"
+                      onClick={() => onPatchTextTransform(i, { offsetX: 0, offsetY: 0, scale: 1 })}
+                    >
+                      Reset text
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
