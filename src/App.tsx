@@ -4,14 +4,45 @@ import { Sidebar } from "./components/Sidebar";
 import { Preview } from "./components/Preview";
 import { EditPanel } from "./components/EditPanel";
 import { BulkExportModal } from "./components/BulkExportModal";
+import { LeaderboardView } from "./components/LeaderboardView";
 import "./App.css";
+
+type AppMode = "carousel" | "leaderboard";
 
 function App() {
   const state = useCarouselState();
   const [bulkExportOpen, setBulkExportOpen] = useState(false);
+  const [appMode, setAppMode] = useState<AppMode>("carousel");
+
+  const modeSwitch = (
+    <div className="mode-switch">
+      <button
+        className={`mode-switch-btn${appMode === "carousel" ? " active" : ""}`}
+        onClick={() => setAppMode("carousel")}
+      >
+        Carousel
+      </button>
+      <button
+        className={`mode-switch-btn${appMode === "leaderboard" ? " active" : ""}`}
+        onClick={() => setAppMode("leaderboard")}
+      >
+        Leaderboard
+      </button>
+    </div>
+  );
+
+  if (appMode === "leaderboard") {
+    return (
+      <div className="app">
+        {modeSwitch}
+        <LeaderboardView />
+      </div>
+    );
+  }
 
   return (
     <div className="app">
+      {modeSwitch}
       <Sidebar
         posts={state.posts}
         selectedPost={state.selectedPost}

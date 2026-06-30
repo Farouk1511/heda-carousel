@@ -7,8 +7,13 @@ import type { ThemeName } from "../data/themes";
 import type { AspectRatio } from "../hooks/useCarouselState";
 import { HASHTAGS } from "../data/posts";
 import { Card } from "../components/Card";
+import { LeaderboardCard } from "../components/LeaderboardCard";
+import type { LeaderboardData } from "../data/leaderboard/types";
+import { weekSlug } from "../data/leaderboard/parse";
+import { paginateLeaderboard } from "../data/leaderboard/pagination";
+import type { AvatarMap } from "../data/leaderboard/avatars";
 
-function getExportDimensions(ratio: AspectRatio) {
+export function getExportDimensions(ratio: AspectRatio) {
   switch (ratio) {
     case "1:1":
       return { w: 1080, h: 1080 };
@@ -20,15 +25,15 @@ function getExportDimensions(ratio: AspectRatio) {
   }
 }
 
-async function captureCardOffscreen(
-  post: Post,
-  slideIndex: number,
-  theme: ThemeName,
-  ratio: AspectRatio,
-  logoScale: number
+/**
+ * Render an arbitrary React element offscreen at the given pixel size and
+ * capture it to a PNG blob. Shared by the carousel Card and the LeaderboardCard.
+ */
+async function captureNodeOffscreen(
+  element: React.ReactElement,
+  w: number,
+  h: number
 ): Promise<Blob> {
-  const { w, h } = getExportDimensions(ratio);
-
   // Create an offscreen container at full export size (same as legacy approach)
   const offscreen = document.createElement("div");
   offscreen.style.cssText = `
@@ -37,23 +42,12 @@ async function captureCardOffscreen(
   `;
   document.body.appendChild(offscreen);
 
-  // Mount a full-size Card via React at export dimensions
   const cardContainer = document.createElement("div");
   cardContainer.style.cssText = `width: ${w}px; height: ${h}px;`;
   offscreen.appendChild(cardContainer);
 
   const root = createRoot(cardContainer);
-  root.render(
-    React.createElement(Card, {
-      post,
-      slideIndex,
-      theme,
-      width: w,
-      height: h,
-      logoSrc: "/LOGO.png",
-      logoScale,
-    })
-  );
+  root.render(element);
 
   // Wait for React render + fonts/images to load
   await new Promise((r) => setTimeout(r, 300));
@@ -77,6 +71,61 @@ async function captureCardOffscreen(
 
   const res = await fetch(dataUrl);
   return res.blob();
+}
+
+async function captureCardOffscreen(
+  post: Post,
+  slideIndex: number,
+  theme: ThemeName,
+  ratio: AspectRatio,
+  logoScale: number
+): Promise<Blob> {
+  const { w, h } = getExportDimensions(ratio);
+  return captureNodeOffscreen(
+    React.createElement(Card, {
+      post,
+      slideIndex,
+      theme,
+      width: w,
+      height: h,
+      logoSrc: "/LOGO.png",
+      logoScale,
+    }),
+    w,
+    h
+  );
+}
+
+async function captureLeaderboardOffscreen(
+  data: LeaderboardData,
+  theme: ThemeName,
+  ratio: AspectRatio,
+  logoScale: number,
+  cta: string,
+  avatars: AvatarMap,
+  pageIndex: number
+): Promise<Blob> {
+  const { w, h } = getExportDimensions(ratio);
+  return captureNodeOffscreen(
+    React.createElement(LeaderboardCard, {
+      data,
+      theme,
+      width: w,
+      height: h,
+      aspectRatio: ratio,
+      logoSrc: "/LOGO.png",
+      logoScale,
+      cta,
+      avatars,
+      pageIndex,
+    }),
+    w,
+    h
+  );
+}
+
+function pageSuffix(pageIndex: number, pageCount: number): string {
+  return pageCount > 1 ? `_p${pageIndex + 1}` : "";
 }
 
 export async function exportCurrentSlide(
@@ -204,6 +253,92 @@ export async function exportAllPosts(
   a.download = `heda_all_posts_carousel.zip`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+export async function exportLeaderboardImage(
+  data: LeaderboardData,
+  theme: ThemeName,
+  ratio: AspectRatio,
+  logoScale: number,
+  cta: string,
+  avatars: AvatarMap,
+  setProgress: (msg: string) => void
+) {
+  const slug = weekSlug(data);
+  const ratioTag = ratio.replace(":", "x");
+  const pages = paginateLeaderboard(data.leaderboard, ratio);
+  setProgress("Rendering...");
+  try {
+    if (pages.length === 1) {
+      const blob = await captureLeaderboardOffscreen(data, theme, ratio, logoScale, cta, avatars, 0);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `heda_leaderboard_${slug}_${ratioTag}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setProgress("Downloaded ✓");
+    } else {
+      // Multiple pages for this ratio -> bundle the carousel into a ZIP.
+      const zip = new JSZip();
+      for (let i = 0; i < pages.length; i++) {
+        setProgress(`Rendering part ${i + 1}/${pages.length}...`);
+        const blob = await captureLeaderboardOffscreen(data, theme, ratio, logoScale, cta, avatars, i);
+        zip.file(`heda_leaderboard_${slug}_${ratioTag}${pageSuffix(i, pages.length)}.png`, blob);
+      }
+      setProgress("Zipping...");
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `heda_leaderboard_${slug}_${ratioTag}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setProgress(`${pages.length} images downloaded ✓`);
+    }
+  } catch (e) {
+    setProgress("Error: " + (e as Error).message);
+  }
+  setTimeout(() => setProgress(""), 2500);
+}
+
+export async function exportLeaderboardRatios(
+  data: LeaderboardData,
+  theme: ThemeName,
+  ratios: AspectRatio[],
+  logoScale: number,
+  cta: string,
+  avatars: AvatarMap,
+  setProgress: (msg: string) => void
+) {
+  const zip = new JSZip();
+  const slug = weekSlug(data);
+  let count = 0;
+  try {
+    for (const ratio of ratios) {
+      const ratioTag = ratio.replace(":", "x");
+      const pages = paginateLeaderboard(data.leaderboard, ratio);
+      for (let i = 0; i < pages.length; i++) {
+        setProgress(`Rendering ${ratio}${pages.length > 1 ? ` part ${i + 1}/${pages.length}` : ""}...`);
+        const blob = await captureLeaderboardOffscreen(data, theme, ratio, logoScale, cta, avatars, i);
+        zip.file(`heda_leaderboard_${slug}_${ratioTag}${pageSuffix(i, pages.length)}.png`, blob);
+        count++;
+      }
+    }
+
+    setProgress("Zipping...");
+    const zipBlob = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `heda_leaderboard_${slug}.zip`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setProgress(`${count} images downloaded ✓`);
+  } catch (e) {
+    setProgress("Error: " + (e as Error).message);
+  }
+  setTimeout(() => setProgress(""), 3000);
 }
 
 export async function exportReelCommand(

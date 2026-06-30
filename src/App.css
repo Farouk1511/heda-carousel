@@ -575,3 +575,80 @@ body {
   content: ""; position: absolute; top: 5px; left: 2.5px;
   width: 7px; height: 1.5px; background: #fff; border-radius: 1px;
 }
+
+/* MODE SWITCH (Carousel / Leaderboard) */
+.mode-switch {
+  position: fixed;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(12, 12, 22, 0.85);
+  border: 1px solid var(--accent-15);
+  backdrop-filter: blur(6px);
+}
+.mode-switch-btn {
+  padding: 6px 16px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: var(--text-50);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mode-switch-btn:hover { color: var(--accent-light); }
+.mode-switch-btn.active {
+  background: rgba(112, 91, 207, 0.18);
+  color: var(--accent-light);
+}
+
+/* LEADERBOARD EDITOR */
+.sidebar-right.lb-wide { width: 360px; min-width: 360px; }
+
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.lb-row-rank {
+  font-size: 11px;
+  color: var(--text-35);
+  font-family: var(--font-mono);
+  min-width: 20px;
+  flex-shrink: 0;
+}
+.lb-row .edit-textarea {
+  padding: 6px 8px;
+  font-size: 12px;
+  resize: none;
+}
+.lb-row-name { flex: 1; min-width: 0; }
+.lb-row-steps { width: 78px; flex-shrink: 0; }
+.lb-row-steps::-webkit-outer-spin-button,
+.lb-row-steps::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.lb-row-actions { display: flex; gap: 3px; flex-shrink: 0; }
+.lb-mini-btn {
+  width: 24px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--accent-15);
+  background: transparent;
+  color: var(--accent-light);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.lb-mini-btn:hover { background: rgba(112, 91, 207, 0.1); }
+.lb-mini-btn:disabled { opacity: 0.3; cursor: default; }
+.lb-mini-danger { color: #d98d8d; border-color: rgba(217, 141, 141, 0.28); }
+.lb-mini-danger:hover { background: rgba(217, 141, 141, 0.08); }

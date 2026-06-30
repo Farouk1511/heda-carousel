@@ -4,7 +4,8 @@
       "mcp__Claude_Preview__preview_start",
       "Bash(npx -y http-server --help)",
       "Bash(npx tsc:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(ls -la \"C:\\\\Users\\\\kazee\\\\Documents\\\\heda-workspace\\\\heda-carousel\\\\\")"
     ]
   }
 }

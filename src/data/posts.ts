@@ -2,7 +2,6 @@ import { buildPostData } from "./posts/content";
 import { month01 } from "./posts/content/month-01";
 import { month02 } from "./posts/content/month-02";
 import { month03 } from "./posts/content/month-03";
-import { month04 } from "./posts/content/month-04";
 
 export type {
   MockupLayout,
@@ -16,7 +15,7 @@ export type {
   WeekDraft,
 } from "./posts/types";
 
-export const POST_MONTHS = [month01, month02, month03, month04];
+export const POST_MONTHS = [month01, month02, month03];
 
 const { weeks, posts } = buildPostData(POST_MONTHS);
 
