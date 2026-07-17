@@ -4,8 +4,14 @@ import fs from "fs";
 import path from "path";
 import { POSTS } from "./src/data/posts";
 import { createReelFromPost, getReelById } from "./src/remotion/textReel/examples";
+import { SAMPLE_LEADERBOARD } from "./src/data/leaderboard/sample";
+import { parseLeaderboard, weekSlug } from "./src/data/leaderboard/parse";
+import { validateDailySteps } from "./src/data/leaderboard/daily";
+import { resolveBumpConfig, type BumpPacing, type BumpReelConfig } from "./src/remotion/bumpChart/config";
+import type { LeaderboardData } from "./src/data/leaderboard/types";
+import { prefetchAvatars } from "./src/data/leaderboard/avatarsNode";
 
-type CompositionId = "ReelVideo" | "TextReelVideo";
+type CompositionId = "ReelVideo" | "TextReelVideo" | "BumpChartVideo";
 
 function parsePropsArg(args: string[]) {
   const propsArg = args.find((a) => a.startsWith("--props="));
@@ -118,6 +124,90 @@ async function main() {
     const outputLocation = path.join(outDir, `${reel.slug}_text-reel.mp4`);
 
     console.log(`\nRendering text reel: \"${reel.title}\" (${reel.id})...`);
+
+    await renderMedia({
+      composition,
+      serveUrl: bundleLocation,
+      codec: "h264",
+      outputLocation,
+      inputProps,
+      onProgress: ({ progress }) => {
+        process.stdout.write(`\r  Progress: ${Math.round(progress * 100)}%`);
+      },
+    });
+
+    console.log(`\n  Saved: ${outputLocation}`);
+    console.log("\nDone!");
+    return;
+  }
+
+  if (compositionId === "BumpChartVideo") {
+    const inputPath = getArg(args, "--input");
+    let data: LeaderboardData;
+    let fileConfig: Partial<BumpReelConfig> = {};
+
+    if (inputPath) {
+      const raw = fs.readFileSync(path.resolve(inputPath), "utf8");
+      let parsedFile: unknown;
+      try {
+        parsedFile = JSON.parse(raw);
+      } catch (e) {
+        throw new Error(`Invalid JSON in ${inputPath}: ${(e as Error).message}`);
+      }
+      // Either a wrapped { data, video } render file (what the app downloads)
+      // or a pure leaderboard JSON (the data-agent contract).
+      const isWrapped =
+        typeof parsedFile === "object" && parsedFile !== null && "data" in parsedFile;
+      const dataPart = isWrapped ? (parsedFile as { data: unknown }).data : parsedFile;
+      if (isWrapped) {
+        const video = (parsedFile as { video?: unknown }).video;
+        if (video && typeof video === "object") {
+          fileConfig = video as Partial<BumpReelConfig>;
+        }
+      }
+      const { data: parsed, error } = parseLeaderboard(JSON.stringify(dataPart));
+      if (error || !parsed) {
+        throw new Error(`Could not parse leaderboard from ${inputPath}: ${error}`);
+      }
+      data = parsed;
+    } else {
+      data = SAMPLE_LEADERBOARD;
+    }
+
+    // One-off CLI overrides on top of the file's saved settings.
+    if (themeArg) fileConfig.theme = theme;
+    const pacingArg = getArg(args, "--pacing");
+    if (pacingArg) fileConfig.pacing = pacingArg as BumpPacing;
+    const config = resolveBumpConfig(fileConfig);
+
+    const validation = validateDailySteps(data);
+    if (!validation.ok) {
+      throw new Error(validation.error);
+    }
+    for (const warning of validation.warnings) {
+      console.warn(`  Warning: ${warning}`);
+    }
+
+    console.log("Pre-fetching avatars...");
+    const avatars = await prefetchAvatars(data.leaderboard.map((e) => e.imageUrl));
+
+    const inputProps = { data, config, avatars };
+    const composition = await selectComposition({
+      serveUrl: bundleLocation,
+      id: compositionId,
+      inputProps,
+    });
+
+    const outDir = path.resolve("./out");
+    if (!fs.existsSync(outDir)) {
+      fs.mkdirSync(outDir, { recursive: true });
+    }
+    const outputLocation = path.join(
+      outDir,
+      `heda_bumpchart_${weekSlug(data)}_${config.theme}.mp4`
+    );
+
+    console.log(`\nRendering bump chart reel: "${data.week.label}"...`);
 
     await renderMedia({
       composition,

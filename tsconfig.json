@@ -19,5 +19,5 @@
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
-  "include": ["src", "render.ts"]
+  "include": ["src", "render.ts", "vite-bump-render.ts", "vite.config.ts"]
 }

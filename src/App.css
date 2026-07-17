@@ -609,6 +609,25 @@ body {
   color: var(--accent-light);
 }
 
+/* LEADERBOARD SUB-TABS (Images / Video) — inline sibling of the title bar */
+.lb-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  margin-left: 14px;
+  border-radius: 10px;
+  background: rgba(12, 12, 22, 0.6);
+  border: 1px solid var(--accent-15);
+}
+
+.sidebar-right .export-btn-primary:disabled,
+.sidebar-right .export-btn-secondary:disabled {
+  opacity: 0.45;
+  cursor: default;
+  filter: none;
+  background: transparent;
+}
+
 /* LEADERBOARD EDITOR */
 .sidebar-right.lb-wide { width: 360px; min-width: 360px; }
 

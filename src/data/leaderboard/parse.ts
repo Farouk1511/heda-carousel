@@ -63,7 +63,22 @@ export function parseLeaderboard(json: string): ParseResult {
       typeof row.imageUrl === "string" && row.imageUrl.trim()
         ? row.imageUrl
         : undefined;
-    entries.push({ rank, name: row.name, steps: row.steps, imageUrl });
+    let dailySteps: number[] | undefined;
+    if (row.dailySteps !== undefined) {
+      if (
+        !Array.isArray(row.dailySteps) ||
+        row.dailySteps.length === 0 ||
+        row.dailySteps.some(
+          (v) => typeof v !== "number" || !Number.isFinite(v) || v < 0
+        )
+      ) {
+        return {
+          error: `leaderboard[${i}].dailySteps must be an array of non-negative numbers.`,
+        };
+      }
+      dailySteps = row.dailySteps as number[];
+    }
+    entries.push({ rank, name: row.name, steps: row.steps, imageUrl, dailySteps });
   }
 
   // Sort by rank ascending (1 first) for a stable render order.

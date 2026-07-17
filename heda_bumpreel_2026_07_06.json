@@ -1,0 +1,175 @@
+{
+  "data": {
+    "week": {
+      "start": "2026-07-06",
+      "end": "2026-07-12",
+      "label": "July 6-12, 2026"
+    },
+    "leaderboard": [
+      {
+        "rank": 1,
+        "name": "Braye",
+        "steps": 148088,
+        "imageUrl": "https://gjuexacvsbgmwuobtvdc.supabase.co/storage/v1/object/public/profile-photos/7175b0c3-4e50-42c4-9c99-d220140b6f3b/1783854566375-f3dcvp16.jpg",
+        "dailySteps": [
+          26780,
+          21181,
+          15343,
+          33658,
+          20300,
+          11558,
+          19268
+        ]
+      },
+      {
+        "rank": 2,
+        "name": "Olise",
+        "steps": 132170,
+        "imageUrl": "https://gjuexacvsbgmwuobtvdc.supabase.co/storage/v1/object/public/profile-photos/5d7b4d3d-d10f-4ef5-ba4d-15e3dc6d2359/1781216453792-x1h7ngcj.jpg",
+        "dailySteps": [
+          29096,
+          16592,
+          16027,
+          20161,
+          17742,
+          11676,
+          20876
+        ]
+      },
+      {
+        "rank": 3,
+        "name": "wanheda",
+        "steps": 96248,
+        "imageUrl": "https://gjuexacvsbgmwuobtvdc.supabase.co/storage/v1/object/public/profile-photos/7145e873-d1da-4f7e-bb0e-1281a2161aee/1779679930428-a9khlmsa.jpg",
+        "dailySteps": [
+          14436,
+          13907,
+          14561,
+          15069,
+          13772,
+          10762,
+          13741
+        ]
+      },
+      {
+        "rank": 4,
+        "name": "Maleek",
+        "steps": 89021,
+        "imageUrl": "https://gjuexacvsbgmwuobtvdc.supabase.co/storage/v1/object/public/profile-photos/3ed4806a-6d08-4366-94e1-7a0766a5ba6b/1779725910402-rcz6tux9.jpg",
+        "dailySteps": [
+          16573,
+          20146,
+          12378,
+          9264,
+          10159,
+          9662,
+          10839
+        ]
+      },
+      {
+        "rank": 5,
+        "name": "Peter",
+        "steps": 82197,
+        "imageUrl": "https://gjuexacvsbgmwuobtvdc.supabase.co/storage/v1/object/public/profile-photos/7ed562df-4e1c-4747-b11d-571b5e7e118f/1782344580875-6q9dx32p.jpg",
+        "dailySteps": [
+          12304,
+          16986,
+          14511,
+          2592,
+          17248,
+          18540,
+          16
+        ]
+      },
+      {
+        "rank": 6,
+        "name": "Tola",
+        "steps": 75727,
+        "imageUrl": "https://gjuexacvsbgmwuobtvdc.supabase.co/storage/v1/object/public/profile-photos/fd820174-bdaf-4a19-bcbe-ea0928840afd/1781231369975-f5n9x04m.jpg",
+        "dailySteps": [
+          14497,
+          10227,
+          0,
+          10464,
+          10026,
+          10902,
+          19611
+        ]
+      },
+      {
+        "rank": 7,
+        "name": "Oto",
+        "steps": 66694,
+        "imageUrl": "https://gjuexacvsbgmwuobtvdc.supabase.co/storage/v1/object/public/profile-photos/a15a830e-2da3-4b39-a42f-4ad85e28d1a2/1780900087791-c01bzyoy.jpg",
+        "dailySteps": [
+          3823,
+          3647,
+          7612,
+          10281,
+          11430,
+          18602,
+          11299
+        ]
+      },
+      {
+        "rank": 8,
+        "name": "Xz",
+        "steps": 62662,
+        "imageUrl": "https://gjuexacvsbgmwuobtvdc.supabase.co/storage/v1/object/public/profile-photos/8ba69aec-2796-4549-bb9d-b87070937cef/1779762142764-n8a32whp.jpg",
+        "dailySteps": [
+          10957,
+          8826,
+          9380,
+          12250,
+          11127,
+          5195,
+          4927
+        ]
+      },
+      {
+        "rank": 9,
+        "name": "Chukky",
+        "steps": 57510,
+        "imageUrl": "https://gjuexacvsbgmwuobtvdc.supabase.co/storage/v1/object/public/profile-photos/69d21252-863b-459e-b469-4d55a92e123d/1782600918552-toyks7q0.jpg",
+        "dailySteps": [
+          7192,
+          2782,
+          10326,
+          6703,
+          10438,
+          11332,
+          8737
+        ]
+      },
+      {
+        "rank": 10,
+        "name": "Fahim",
+        "steps": 52415,
+        "imageUrl": "https://gjuexacvsbgmwuobtvdc.supabase.co/storage/v1/object/public/profile-photos/010d2e79-0204-4516-ab8e-260745034d57/onb-2e0366e092b3ecf0c82cbcea.jpg",
+        "dailySteps": [
+          4360,
+          4328,
+          5794,
+          8064,
+          9587,
+          12490,
+          7792
+        ]
+      }
+    ],
+    "winner": {
+      "name": "Braye",
+      "steps": 148088
+    }
+  },
+  "video": {
+    "theme": "standard",
+    "title": "How the week moved",
+    "cta": "Join the challenge ↓",
+    "pacing": "normal",
+    "topN": 10,
+    "showIntro": true,
+    "showOutro": true,
+    "logoScale": 1
+  }
+}

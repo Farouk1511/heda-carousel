@@ -1,19 +1,32 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import type { ThemeName } from "../data/themes";
 import type { AspectRatio } from "../hooks/useCarouselState";
 import { useLeaderboardState } from "../hooks/useLeaderboardState";
 import { paginateLeaderboard } from "../data/leaderboard/pagination";
+import { validateDailySteps } from "../data/leaderboard/daily";
 import { LeaderboardCard } from "./LeaderboardCard";
+import { VideoPreview, VideoSettings } from "./leaderboard/VideoPanel";
 import {
+  DEFAULT_BUMP_CONFIG,
+  type BumpReelConfig,
+} from "../remotion/bumpChart/config";
+import {
+  exportBumpReelFile,
   exportLeaderboardImage,
   exportLeaderboardRatios,
+  renderBumpReelServer,
 } from "../utils/export";
 
 const ALL_RATIOS: AspectRatio[] = ["1:1", "4:5", "9:16"];
 
+type LeaderboardTab = "images" | "video";
+
 export const LeaderboardView: React.FC = () => {
   const lb = useLeaderboardState();
+  const [tab, setTab] = useState<LeaderboardTab>("images");
   const [previewPage, setPreviewPage] = useState(0);
+  const [videoConfig, setVideoConfig] = useState<BumpReelConfig>(DEFAULT_BUMP_CONFIG);
+  const [rendering, setRendering] = useState(false);
   const progressRef = useRef<HTMLDivElement>(null);
 
   const setProgress = (msg: string) => {
@@ -23,6 +36,17 @@ export const LeaderboardView: React.FC = () => {
   const pages = paginateLeaderboard(lb.data.leaderboard, lb.exportRatio);
   const pageCount = pages.length;
   const safePage = Math.min(previewPage, pageCount - 1);
+
+  // The CTA is shared content: the cards' footer and the video's outro use
+  // the same line, edited once in the CONTENT section.
+  const effectiveVideoConfig = useMemo(
+    () => ({ ...videoConfig, cta: lb.cta }),
+    [videoConfig, lb.cta]
+  );
+  const dailyValidation = useMemo(() => validateDailySteps(lb.data), [lb.data]);
+
+  const patchVideoConfig = (patch: Partial<BumpReelConfig>) =>
+    setVideoConfig((c) => ({ ...c, ...patch }));
 
   const handleExportPng = async () => {
     const avatars = await lb.ensureAvatars();
@@ -50,21 +74,55 @@ export const LeaderboardView: React.FC = () => {
     );
   };
 
+  const handleExportBumpReel = () => {
+    void exportBumpReelFile(lb.data, effectiveVideoConfig, setProgress);
+  };
+
+  const handleRenderBumpReel = async () => {
+    setRendering(true);
+    try {
+      await renderBumpReelServer(lb.data, effectiveVideoConfig, setProgress);
+    } finally {
+      setRendering(false);
+    }
+  };
+
   return (
     <>
       <div className="center">
         <div className="topbar">
-          <div className="topbar-left">
+          <div className="topbar-left" style={{ display: "flex", alignItems: "center" }}>
             <div className="post-title-bar">Weekly Leaderboard</div>
+            <div className="lb-tabs">
+              {(["images", "video"] as LeaderboardTab[]).map((t) => (
+                <button
+                  key={t}
+                  className={`mode-switch-btn${tab === t ? " active" : ""}`}
+                  onClick={() => setTab(t)}
+                >
+                  {t === "images" ? "Images" : "Video"}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="tags">
-            <span className="tag">{lb.exportRatio}</span>
-            <span className="tag">{lb.theme}</span>
-            {pageCount > 1 && <span className="tag">{pageCount} imgs</span>}
+            {tab === "images" ? (
+              <>
+                <span className="tag">{lb.exportRatio}</span>
+                <span className="tag">{lb.theme}</span>
+                {pageCount > 1 && <span className="tag">{pageCount} imgs</span>}
+              </>
+            ) : (
+              <>
+                <span className="tag">9:16</span>
+                <span className="tag">{videoConfig.theme}</span>
+                <span className="tag">{videoConfig.pacing}</span>
+              </>
+            )}
           </div>
         </div>
 
-        {pageCount > 1 && (
+        {tab === "images" && pageCount > 1 && (
           <div className="slide-nav">
             <button
               className="nav-btn"
@@ -86,75 +144,92 @@ export const LeaderboardView: React.FC = () => {
           </div>
         )}
 
-        <div className="card-area" style={{ paddingTop: pageCount > 1 ? 8 : 24 }}>
-          <div style={{ width: "100%", maxWidth: 400 }}>
-            <LeaderboardCard
+        <div
+          className="card-area"
+          style={{ paddingTop: tab === "images" && pageCount > 1 ? 8 : 24 }}
+        >
+          {tab === "images" ? (
+            <div style={{ width: "100%", maxWidth: 400 }}>
+              <LeaderboardCard
+                data={lb.data}
+                theme={lb.theme}
+                aspectRatio={lb.exportRatio}
+                logoScale={lb.logoScale}
+                cta={lb.cta}
+                pageIndex={safePage}
+                avatars={lb.avatars}
+              />
+            </div>
+          ) : (
+            <VideoPreview
               data={lb.data}
-              theme={lb.theme}
-              aspectRatio={lb.exportRatio}
-              logoScale={lb.logoScale}
-              cta={lb.cta}
-              pageIndex={safePage}
+              config={effectiveVideoConfig}
               avatars={lb.avatars}
             />
-          </div>
+          )}
         </div>
       </div>
 
       <div className="sidebar-right lb-wide">
-        <div className="section-label">THEME</div>
-        <div className="theme-btns">
-          {(["standard", "deep"] as ThemeName[]).map((th) => (
-            <button
-              key={th}
-              className={`theme-btn${lb.theme === th ? " active" : ""}`}
-              onClick={() => lb.setTheme(th)}
-            >
-              {th}
-            </button>
-          ))}
-        </div>
+        {tab === "images" ? (
+          <>
+            <div className="section-label">THEME</div>
+            <div className="theme-btns">
+              {(["standard", "deep"] as ThemeName[]).map((th) => (
+                <button
+                  key={th}
+                  className={`theme-btn${lb.theme === th ? " active" : ""}`}
+                  onClick={() => lb.setTheme(th)}
+                >
+                  {th}
+                </button>
+              ))}
+            </div>
 
-        <div className="section-label">ASPECT RATIO</div>
-        <div className="ratio-btns">
-          {ALL_RATIOS.map((r) => {
-            const n = paginateLeaderboard(lb.data.leaderboard, r).length;
-            return (
+            <div className="section-label">ASPECT RATIO</div>
+            <div className="ratio-btns">
+              {ALL_RATIOS.map((r) => {
+                const n = paginateLeaderboard(lb.data.leaderboard, r).length;
+                return (
+                  <button
+                    key={r}
+                    className={`ratio-btn${lb.exportRatio === r ? " active" : ""}`}
+                    onClick={() => {
+                      lb.setExportRatio(r);
+                      setPreviewPage(0);
+                    }}
+                  >
+                    {r}
+                    {n > 1 ? ` ·${n}` : ""}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="section-label">LOGO SIZE</div>
+            <div className="size-control">
               <button
-                key={r}
-                className={`ratio-btn${lb.exportRatio === r ? " active" : ""}`}
-                onClick={() => {
-                  lb.setExportRatio(r);
-                  setPreviewPage(0);
-                }}
+                className="size-btn"
+                onClick={() =>
+                  lb.setLogoScale(Math.max(0.75, Number((lb.logoScale - 0.1).toFixed(2))))
+                }
               >
-                {r}
-                {n > 1 ? ` ·${n}` : ""}
+                -
               </button>
-            );
-          })}
-        </div>
-
-        <div className="section-label">LOGO SIZE</div>
-        <div className="size-control">
-          <button
-            className="size-btn"
-            onClick={() =>
-              lb.setLogoScale(Math.max(0.75, Number((lb.logoScale - 0.1).toFixed(2))))
-            }
-          >
-            -
-          </button>
-          <div className="size-value">{Math.round(lb.logoScale * 100)}%</div>
-          <button
-            className="size-btn"
-            onClick={() =>
-              lb.setLogoScale(Math.min(2.5, Number((lb.logoScale + 0.1).toFixed(2))))
-            }
-          >
-            +
-          </button>
-        </div>
+              <div className="size-value">{Math.round(lb.logoScale * 100)}%</div>
+              <button
+                className="size-btn"
+                onClick={() =>
+                  lb.setLogoScale(Math.min(2.5, Number((lb.logoScale + 0.1).toFixed(2))))
+                }
+              >
+                +
+              </button>
+            </div>
+          </>
+        ) : (
+          <VideoSettings config={videoConfig} onChange={patchVideoConfig} />
+        )}
 
         <div className="section-label" style={{ marginTop: 24 }}>
           CONTENT
@@ -245,17 +320,51 @@ export const LeaderboardView: React.FC = () => {
           </button>
         </div>
 
-        <div className="section-label" style={{ marginTop: 28 }}>
-          EXPORT
-        </div>
-        <button className="export-btn-primary" onClick={handleExportZip}>
-          ↓ ZIP — All Ratios
-        </button>
-        <button className="export-btn-secondary" onClick={handleExportPng}>
-          {pageCount > 1
-            ? `↓ ZIP — ${lb.exportRatio} (${pageCount} imgs)`
-            : `↓ PNG — ${lb.exportRatio} Only`}
-        </button>
+        {tab === "images" ? (
+          <>
+            <div className="section-label" style={{ marginTop: 28 }}>
+              EXPORT — IMAGES
+            </div>
+            <button className="export-btn-primary" onClick={handleExportZip}>
+              ↓ ZIP — All Ratios
+            </button>
+            <button className="export-btn-secondary" onClick={handleExportPng}>
+              {pageCount > 1
+                ? `↓ ZIP — ${lb.exportRatio} (${pageCount} imgs)`
+                : `↓ PNG — ${lb.exportRatio} Only`}
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="section-label" style={{ marginTop: 28 }}>
+              EXPORT — VIDEO
+            </div>
+            <button
+              className="export-btn-primary"
+              disabled={!dailyValidation.ok || rendering}
+              onClick={handleRenderBumpReel}
+            >
+              {rendering ? "⏳ Rendering..." : "↓ Render + Download MP4"}
+            </button>
+            <button
+              className="export-btn-secondary"
+              disabled={!dailyValidation.ok}
+              onClick={handleExportBumpReel}
+            >
+              ⏵ JSON + terminal command
+            </button>
+            {!dailyValidation.ok && (
+              <div className="bulk-modal-error" style={{ marginTop: 4 }}>
+                Add dailySteps to every entry to enable the bump reel.
+              </div>
+            )}
+            <div style={{ fontSize: 11, lineHeight: 1.6, opacity: 0.5, marginTop: 8 }}>
+              Render + Download renders on the dev server (takes a minute or two)
+              and saves the MP4 to your downloads and <code>./out</code>. The JSON
+              export is the fallback for rendering from a terminal.
+            </div>
+          </>
+        )}
         <div className="export-progress" ref={progressRef} />
       </div>
     </>

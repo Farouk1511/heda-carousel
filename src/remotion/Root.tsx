@@ -10,6 +10,14 @@ import {
 } from "./TextReelComposition";
 import { getReelById, hedaCommunityReel } from "./textReel/examples";
 import { TEXT_REEL_FPS, TEXT_REEL_HEIGHT, TEXT_REEL_WIDTH } from "./textReel/constants";
+import {
+  BumpChartComposition,
+  getBumpChartDurationFromProps,
+  type BumpChartProps,
+} from "./BumpChartComposition";
+import { BUMP_FPS, BUMP_HEIGHT, BUMP_WIDTH } from "./bumpChart/constants";
+import { DEFAULT_BUMP_CONFIG } from "./bumpChart/config";
+import { SAMPLE_LEADERBOARD } from "../data/leaderboard/sample";
 
 export const RemotionRoot: React.FC = () => {
   const defaultPost = 0;
@@ -59,6 +67,22 @@ export const RemotionRoot: React.FC = () => {
             durationInFrames: getTextReelDuration(reel, castProps.durationPresetOverride),
           };
         }}
+      />
+
+      <Composition
+        id="BumpChartVideo"
+        component={BumpChartComposition as unknown as ComponentType<Record<string, unknown>>}
+        durationInFrames={getBumpChartDurationFromProps({ data: SAMPLE_LEADERBOARD })}
+        fps={BUMP_FPS}
+        width={BUMP_WIDTH}
+        height={BUMP_HEIGHT}
+        defaultProps={{
+          data: SAMPLE_LEADERBOARD,
+          config: DEFAULT_BUMP_CONFIG,
+        }}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: getBumpChartDurationFromProps(props as unknown as BumpChartProps),
+        })}
       />
     </>
   );

@@ -12,6 +12,7 @@ import type { LeaderboardData } from "../data/leaderboard/types";
 import { weekSlug } from "../data/leaderboard/parse";
 import { paginateLeaderboard } from "../data/leaderboard/pagination";
 import type { AvatarMap } from "../data/leaderboard/avatars";
+import type { BumpReelConfig } from "../remotion/bumpChart/config";
 
 export function getExportDimensions(ratio: AspectRatio) {
   switch (ratio) {
@@ -339,6 +340,96 @@ export async function exportLeaderboardRatios(
     setProgress("Error: " + (e as Error).message);
   }
   setTimeout(() => setProgress(""), 3000);
+}
+
+/**
+ * Bridge from browser state to the CLI bump-chart render: downloads the
+ * current leaderboard + video settings as a { data, video } JSON file and
+ * copies the matching `npm run render:bump-chart` command to the clipboard.
+ */
+export async function exportBumpReelFile(
+  data: LeaderboardData,
+  video: BumpReelConfig,
+  setProgress: (msg: string) => void
+) {
+  const fileName = `heda_bumpreel_${weekSlug(data)}.json`;
+  const blob = new Blob([JSON.stringify({ data, video }, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  const command = `npm run render:bump-chart -- --input=./${fileName}`;
+  try {
+    await navigator.clipboard.writeText(command);
+    setProgress("JSON downloaded — render command copied ✓");
+  } catch {
+    setProgress(`JSON downloaded — run: ${command}`);
+  }
+  setTimeout(() => setProgress(""), 6000);
+}
+
+/**
+ * One-click bump-reel render: POSTs the leaderboard + settings to the Vite
+ * dev server's render endpoint, polls progress, then downloads the MP4.
+ * Falls back with a hint when the endpoint isn't there (static build).
+ */
+export async function renderBumpReelServer(
+  data: LeaderboardData,
+  video: BumpReelConfig,
+  setProgress: (msg: string) => void
+): Promise<void> {
+  let jobId: string;
+  try {
+    const post = await fetch("/api/bump-render", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data, video }),
+    });
+    const payload = (await post.json()) as { jobId?: string; error?: string };
+    if (!post.ok || !payload.jobId) {
+      setProgress(`Error: ${payload.error ?? "render endpoint unavailable"}`);
+      setTimeout(() => setProgress(""), 5000);
+      return;
+    }
+    jobId = payload.jobId;
+  } catch {
+    setProgress("Render server unavailable — use the JSON + command export instead.");
+    setTimeout(() => setProgress(""), 5000);
+    return;
+  }
+
+  setProgress("Bundling composition...");
+  for (;;) {
+    await new Promise((r) => setTimeout(r, 1000));
+    let status: { state: string; progress: number; error?: string; fileName?: string };
+    try {
+      status = await (await fetch(`/api/bump-render/status?id=${jobId}`)).json();
+    } catch {
+      continue; // dev server hiccup (e.g. HMR restart) — keep polling
+    }
+    if (status.state === "bundling") {
+      setProgress("Bundling composition...");
+    } else if (status.state === "rendering") {
+      setProgress(`Rendering... ${Math.round(status.progress * 100)}%`);
+    } else if (status.state === "error") {
+      setProgress(`Error: ${status.error}`);
+      setTimeout(() => setProgress(""), 6000);
+      return;
+    } else if (status.state === "done") {
+      const a = document.createElement("a");
+      a.href = `/api/bump-render/file?id=${jobId}`;
+      a.download = status.fileName ?? "bump-reel.mp4";
+      a.click();
+      setProgress("MP4 downloaded ✓ (also saved to ./out)");
+      setTimeout(() => setProgress(""), 6000);
+      return;
+    }
+  }
 }
 
 export async function exportReelCommand(

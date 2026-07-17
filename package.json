@@ -11,12 +11,14 @@
     "render:reel": "npx tsx render.ts",
     "render:all": "npx tsx render.ts --all",
     "render:text-reel": "npx tsx render.ts --composition=TextReelVideo",
-    "render:text-reel:example": "npx tsx render.ts --composition=TextReelVideo --reel-id=heda-community-reel"
+    "render:text-reel:example": "npx tsx render.ts --composition=TextReelVideo --reel-id=heda-community-reel",
+    "render:bump-chart": "npx tsx render.ts --composition=BumpChartVideo"
   },
   "dependencies": {
     "@remotion/bundler": "^4.0.242",
     "@remotion/cli": "^4.0.242",
     "@remotion/google-fonts": "^4.0.441",
+    "@remotion/player": "4.0.441",
     "@remotion/renderer": "^4.0.242",
     "html-to-image": "^1.11.11",
     "jszip": "^3.10.1",
