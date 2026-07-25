@@ -13,6 +13,8 @@ import { weekSlug } from "../data/leaderboard/parse";
 import { paginateLeaderboard } from "../data/leaderboard/pagination";
 import type { AvatarMap } from "../data/leaderboard/avatars";
 import type { BumpReelConfig } from "../remotion/bumpChart/config";
+import type { PostStyleEntry, StyleMap } from "../data/design/types";
+import { resolveDesign, type CardDesign } from "../data/design/resolve";
 
 export function getExportDimensions(ratio: AspectRatio) {
   switch (ratio) {
@@ -26,14 +28,22 @@ export function getExportDimensions(ratio: AspectRatio) {
   }
 }
 
+export interface CaptureOptions {
+  /** Milliseconds to settle after mount/waitFor (default 300 — carousel legacy). */
+  settleMs?: number;
+  /** Optional readiness hook (e.g. await fonts + image decode) before capture. */
+  waitFor?: (root: HTMLElement) => Promise<void>;
+}
+
 /**
  * Render an arbitrary React element offscreen at the given pixel size and
  * capture it to a PNG blob. Shared by the carousel Card and the LeaderboardCard.
  */
-async function captureNodeOffscreen(
+export async function captureNodeOffscreen(
   element: React.ReactElement,
   w: number,
-  h: number
+  h: number,
+  opts?: CaptureOptions
 ): Promise<Blob> {
   // Create an offscreen container at full export size (same as legacy approach)
   const offscreen = document.createElement("div");
@@ -51,7 +61,19 @@ async function captureNodeOffscreen(
   root.render(element);
 
   // Wait for React render + fonts/images to load
-  await new Promise((r) => setTimeout(r, 300));
+  if (opts?.waitFor) {
+    try {
+      await opts.waitFor(cardContainer);
+    } catch {
+      /* best-effort readiness */
+    }
+  }
+  try {
+    await document.fonts.ready;
+  } catch {
+    /* best-effort font readiness */
+  }
+  await new Promise((r) => setTimeout(r, opts?.settleMs ?? 300));
 
   const cardEl = cardContainer.firstElementChild as HTMLElement;
   if (!cardEl) {
@@ -60,10 +82,11 @@ async function captureNodeOffscreen(
     throw new Error("Card element not found in offscreen container");
   }
 
+  // pixelRatio 2 -> 2160-wide output; IG compression punishes thin type at 1080
   const dataUrl = await toPng(cardEl, {
     width: w,
     height: h,
-    pixelRatio: 1,
+    pixelRatio: 2,
   });
 
   // Clean up
@@ -79,7 +102,8 @@ async function captureCardOffscreen(
   slideIndex: number,
   theme: ThemeName,
   ratio: AspectRatio,
-  logoScale: number
+  logoScale: number,
+  design?: CardDesign
 ): Promise<Blob> {
   const { w, h } = getExportDimensions(ratio);
   return captureNodeOffscreen(
@@ -91,6 +115,7 @@ async function captureCardOffscreen(
       height: h,
       logoSrc: "/LOGO.png",
       logoScale,
+      design,
     }),
     w,
     h
@@ -133,13 +158,15 @@ export async function exportCurrentSlide(
   post: Post,
   currentSlide: number,
   theme: ThemeName,
+  styleEntry: PostStyleEntry | undefined,
   ratio: AspectRatio,
   logoScale: number,
   setProgress: (msg: string) => void
 ) {
   setProgress("Rendering...");
   try {
-    const blob = await captureCardOffscreen(post, currentSlide, theme, ratio, logoScale);
+    const design = resolveDesign(theme, styleEntry, currentSlide);
+    const blob = await captureCardOffscreen(post, currentSlide, theme, ratio, logoScale, design);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -156,6 +183,7 @@ export async function exportCurrentSlide(
 export async function exportAllSlides(
   post: Post,
   theme: ThemeName,
+  styleEntry: PostStyleEntry | undefined,
   ratio: AspectRatio,
   logoScale: number,
   setProgress: (msg: string) => void,
@@ -170,7 +198,8 @@ export async function exportAllSlides(
     for (let i = 0; i < slides.length; i++) {
       setProgress(`Rendering slide ${i + 1} / ${slides.length}...`);
       setCurrentSlide(i);
-      const blob = await captureCardOffscreen(post, i, theme, ratio, logoScale);
+      const design = resolveDesign(theme, styleEntry, i);
+      const blob = await captureCardOffscreen(post, i, theme, ratio, logoScale, design);
       const typeName = slides[i].type.toLowerCase().replace(/\s+/g, "_");
       folder.file(`slide_${i + 1}_${typeName}.png`, blob);
     }
@@ -205,6 +234,7 @@ export interface BulkExportProgress {
 export async function exportAllPosts(
   posts: Post[],
   theme: ThemeName,
+  styles: StyleMap,
   ratios: AspectRatio[],
   logoScale: number,
   onProgress: (p: BulkExportProgress) => void,
@@ -234,7 +264,8 @@ export async function exportAllPosts(
           label: `Day ${post.day} — slide ${i + 1}/${post.slides.length}${ratios.length > 1 ? ` (${ratio})` : ""}`,
         });
 
-        const blob = await captureCardOffscreen(post, i, theme, ratio, logoScale);
+        const design = resolveDesign(theme, styles[post.id], i);
+        const blob = await captureCardOffscreen(post, i, theme, ratio, logoScale, design);
         const typeName = post.slides[i].type.toLowerCase().replace(/\s+/g, "_");
         ratioFolder.file(`slide_${i + 1}_${typeName}.png`, blob);
       }

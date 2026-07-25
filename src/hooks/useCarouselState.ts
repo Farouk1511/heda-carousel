@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   POSTS,
   type MockupLayout,
@@ -7,8 +7,12 @@ import {
   type SlideTextTransform,
 } from "../data/posts";
 import type { ThemeName } from "../data/themes";
+import type { PostStyleEntry, SlideStyle, StyleMap } from "../data/design/types";
+import { loadStyles, saveStyles } from "../utils/stylePersistence";
 
 export type AspectRatio = "1:1" | "4:5" | "9:16";
+
+const SAFE_AREA_KEY = "heda.carousel.safearea";
 
 export interface CarouselState {
   posts: Post[];
@@ -32,6 +36,18 @@ export function useCarouselState() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [exportRatio, setExportRatio] = useState<AspectRatio>("4:5");
   const [logoScale, setLogoScale] = useState(1);
+  const [styles, setStyles] = useState<StyleMap>(() => loadStyles());
+  const [safeArea, setSafeArea] = useState<boolean>(
+    () => localStorage.getItem(SAFE_AREA_KEY) === "1"
+  );
+
+  useEffect(() => {
+    saveStyles(styles);
+  }, [styles]);
+
+  useEffect(() => {
+    localStorage.setItem(SAFE_AREA_KEY, safeArea ? "1" : "0");
+  }, [safeArea]);
 
   const post = posts[selectedPost];
   const slides = post.slides;
@@ -166,6 +182,44 @@ export function useCarouselState() {
     setSidebarCollapsed((c) => !c);
   }, []);
 
+  const patchPostStyle = useCallback(
+    (postId: number, patch: Partial<Omit<PostStyleEntry, "slides">>) => {
+      setStyles((prev) => {
+        const entry = prev[postId] ?? {};
+        const next: PostStyleEntry = { ...entry, ...patch };
+        if (patch.texture) next.texture = { ...entry.texture, ...patch.texture };
+        if (patch.chrome) next.chrome = { ...entry.chrome, ...patch.chrome };
+        return { ...prev, [postId]: next };
+      });
+    },
+    []
+  );
+
+  const patchSlideStyle = useCallback(
+    (postId: number, slideIdx: number, patch: Partial<SlideStyle>) => {
+      setStyles((prev) => {
+        const entry = prev[postId] ?? {};
+        const slides = { ...entry.slides };
+        const nextSlide: SlideStyle = { ...slides[slideIdx], ...patch };
+        if (
+          nextSlide.backgroundId === undefined &&
+          nextSlide.variant === undefined &&
+          nextSlide.mockupFrame === undefined
+        ) {
+          delete slides[slideIdx];
+        } else {
+          slides[slideIdx] = nextSlide;
+        }
+        return { ...prev, [postId]: { ...entry, slides } };
+      });
+    },
+    []
+  );
+
+  const toggleSafeArea = useCallback(() => {
+    setSafeArea((v) => !v);
+  }, []);
+
   return {
     posts,
     selectedPost,
@@ -175,9 +229,15 @@ export function useCarouselState() {
     sidebarCollapsed,
     exportRatio,
     logoScale,
+    styles,
+    postStyle: styles[post.id] as PostStyleEntry | undefined,
+    safeArea,
     post,
     slides,
     slide,
+    patchPostStyle,
+    patchSlideStyle,
+    toggleSafeArea,
     selectPost,
     prevSlide,
     nextSlide,

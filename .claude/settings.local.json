@@ -5,7 +5,10 @@
       "Bash(npx -y http-server --help)",
       "Bash(npx tsc:*)",
       "Bash(npm run:*)",
-      "Bash(ls -la \"C:\\\\Users\\\\kazee\\\\Documents\\\\heda-workspace\\\\heda-carousel\\\\\")"
+      "Bash(ls -la \"C:\\\\Users\\\\kazee\\\\Documents\\\\heda-workspace\\\\heda-carousel\\\\\")",
+      "Bash(ls \"C:\\\\Users\\\\kazee\\\\Documents\\\\heda-workspace\")",
+      "Bash(npx tsx *)",
+      "Bash(npx tsc *)"
     ]
   }
 }

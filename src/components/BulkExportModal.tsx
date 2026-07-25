@@ -3,11 +3,13 @@ import type { Post } from "../data/posts";
 import { POST_MONTHS } from "../data/posts";
 import type { ThemeName } from "../data/themes";
 import type { AspectRatio } from "../hooks/useCarouselState";
+import type { StyleMap } from "../data/design/types";
 import { exportAllPosts, type BulkExportProgress } from "../utils/export";
 
 interface BulkExportModalProps {
   posts: Post[];
   theme: ThemeName;
+  styles: StyleMap;
   logoScale: number;
   onClose: () => void;
 }
@@ -17,6 +19,7 @@ const RATIOS: AspectRatio[] = ["1:1", "4:5", "9:16"];
 export const BulkExportModal: React.FC<BulkExportModalProps> = ({
   posts,
   theme,
+  styles,
   logoScale,
   onClose,
 }) => {
@@ -123,6 +126,7 @@ export const BulkExportModal: React.FC<BulkExportModalProps> = ({
       await exportAllPosts(
         selectedPosts,
         theme,
+        styles,
         Array.from(selectedRatios),
         logoScale,
         setProgress,
@@ -140,7 +144,7 @@ export const BulkExportModal: React.FC<BulkExportModalProps> = ({
       setRunning(false);
       abortRef.current = null;
     }
-  }, [selectedPosts, theme, selectedRatios, totalSlides, onClose]);
+  }, [selectedPosts, theme, styles, selectedRatios, totalSlides, onClose]);
 
   const handleCancel = () => {
     if (abortRef.current) {

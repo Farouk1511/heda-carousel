@@ -1,11 +1,26 @@
 import React from "react";
 
+export interface DotColors {
+  active: string;
+  inactive: string;
+  ctaActive: string;
+  ctaInactive: string;
+}
+
+const LEGACY_COLORS: DotColors = {
+  active: "#705bcf",
+  inactive: "rgba(112,91,207,0.25)",
+  ctaActive: "#fff",
+  ctaInactive: "rgba(255,255,255,0.3)",
+};
+
 interface CardDotsProps {
   total: number;
   active: number;
   isCTA: boolean;
   scale?: number;
   activeProgress?: number;
+  colors?: DotColors;
 }
 
 export const CardDots: React.FC<CardDotsProps> = ({
@@ -14,6 +29,7 @@ export const CardDots: React.FC<CardDotsProps> = ({
   isCTA,
   scale = 1,
   activeProgress = 1,
+  colors = LEGACY_COLORS,
 }) => {
   const s = scale;
   const clampedProgress = Math.min(Math.max(activeProgress, 0), 1);
@@ -37,11 +53,11 @@ export const CardDots: React.FC<CardDotsProps> = ({
               background:
               i === active
                 ? isCTA
-                  ? "#fff"
-                  : "#705bcf"
+                  ? colors.ctaActive
+                  : colors.active
                 : isCTA
-                  ? "rgba(255,255,255,0.3)"
-                  : "rgba(112,91,207,0.25)",
+                  ? colors.ctaInactive
+                  : colors.inactive,
             transition: "all 0.3s ease",
           }}
         />

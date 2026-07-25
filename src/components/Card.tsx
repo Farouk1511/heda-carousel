@@ -2,8 +2,13 @@ import React, { useRef, useState } from "react";
 import type { MockupLayout, Post, SlideMockup, SlideTextTransform } from "../data/posts";
 import type { ThemeName } from "../data/themes";
 import type { AspectRatio } from "../hooks/useCarouselState";
+import { legacyDesign, type CardDesign } from "../data/design/resolve";
 import { BoldText } from "./BoldText";
 import { CardDots } from "./CardDots";
+import { CardBackground } from "./card/CardBackground";
+import { CoverSeriesChip, CoverWatermark } from "./card/CardCover";
+import { CardVariantBody } from "./card/CardVariantBody";
+import { DeviceFrame } from "./card/DeviceFrame";
 
 function getAspectRatioCSS(ratio: AspectRatio): string {
   switch (ratio) {
@@ -39,6 +44,8 @@ interface CardProps {
   dotAnimationProgress?: number;
   aspectRatio?: AspectRatio;
   logoScale?: number;
+  /** Resolved design tokens; omitted -> legacy visuals for the given theme */
+  design?: CardDesign;
   onMockupTransformChange?: (slideIdx: number, patch: Partial<SlideMockup>) => void;
   onTextTransformChange?: (slideIdx: number, patch: Partial<SlideTextTransform>) => void;
 }
@@ -55,6 +62,7 @@ export const Card: React.FC<CardProps> = ({
   dotAnimationProgress = 1,
   aspectRatio = "4:5",
   logoScale = 1,
+  design,
   onMockupTransformChange,
   onTextTransformChange,
 }) => {
@@ -84,35 +92,33 @@ export const Card: React.FC<CardProps> = ({
   const cleanHeadline = slide.headline.replace(/\*\*/g, "");
   const headlineLength = cleanHeadline.length;
 
+  const d = design ?? legacyDesign(theme);
+  const isCover = slideIndex === 0 && !isCTA && !mockup && d.cover.treatment;
+
   let headlineBaseSize = isCTA ? 32 : 28;
   if (mockup && SIDE_LAYOUTS.includes(mockup.layout)) headlineBaseSize = 22;
   if (headlineLength > 140) headlineBaseSize = isCTA ? 24 : mockup ? 18 : 20;
   else if (headlineLength > 110) headlineBaseSize = isCTA ? 26 : mockup ? 19 : 22;
   else if (headlineLength > 80) headlineBaseSize = isCTA ? 28 : mockup ? 20 : 24;
   else if (headlineLength > 60) headlineBaseSize = isCTA ? 30 : mockup ? 21 : 26;
+  if (isCover) {
+    // cover slides get the display type scale
+    if (headlineLength > 140) headlineBaseSize = 26;
+    else if (headlineLength > 110) headlineBaseSize = 28;
+    else if (headlineLength > 80) headlineBaseSize = 30;
+    else if (headlineLength > 60) headlineBaseSize = 32;
+    else headlineBaseSize = 34;
+  }
 
   const headlineOpacity = Math.min(Math.max(animationProgress / 0.35, 0), 1);
   const headlineTranslateY = (1 - headlineOpacity) * 20 * s;
   const subOpacity = Math.min(Math.max((animationProgress - 0.1) / 0.35, 0), 1);
   const subTranslateY = (1 - subOpacity) * 14 * s;
 
-  const bgCard =
-    theme === "deep"
-      ? "#1a1a2e"
-      : "linear-gradient(145deg, #13111a 0%, #1c1826 100%)";
-  const bgCTA =
-    theme === "deep"
-      ? "#705bcf"
-      : "linear-gradient(135deg, #705bcf 0%, #5a45b0 100%)";
-  const border = isCTA
-    ? "none"
-    : theme === "deep"
-      ? "1px solid rgba(112,91,207,0.2)"
-      : "1px solid rgba(112,91,207,0.15)";
-
-  const hlColor = isCTA ? undefined : "#705bcf";
-  const headlineColor = isCTA ? "#fff" : "#f0eef5";
-  const textColor = isCTA ? "#fff" : "#e8e6f0";
+  const border = isCTA ? d.borderCTA : d.border;
+  const hlColor = isCTA ? undefined : d.hlColor;
+  const headlineColor = isCTA ? d.ctaHeadlineColor : d.headlineColor;
+  const textColor = isCTA ? d.ctaTextColor : d.textColor;
   const canDragMockup = Boolean(mockup && onMockupTransformChange && !width);
   const canDragText = Boolean(mockup && onTextTransformChange && !width);
 
@@ -128,48 +134,66 @@ export const Card: React.FC<CardProps> = ({
     justifyContent: "space-between",
     position: "relative",
     overflow: "hidden",
-    background: isCTA ? bgCTA : bgCard,
     border,
     color: textColor,
     fontFamily: "'DM Sans', sans-serif",
     boxSizing: "border-box",
   };
 
-  const orbStyle: React.CSSProperties = {
-    position: "absolute",
-    top: -40 * s,
-    right: -40 * s,
-    width: 120 * s,
-    height: 120 * s,
-    borderRadius: "50%",
-    pointerEvents: "none",
-    background:
-      theme === "deep"
-        ? "radial-gradient(circle, rgba(112,91,207,0.3) 0%, transparent 70%)"
-        : "radial-gradient(circle, rgba(112,91,207,0.12) 0%, transparent 70%)",
-  };
-
   const chrome = (
     <>
-      <img
-        src={logoSrc}
-        alt="Heda"
-        style={{
-          position: "absolute",
-          top: 16 * s,
-          right: 16 * s,
-          width: 32 * s * logoScale,
-          height: 32 * s * logoScale,
-          objectFit: "contain",
-          pointerEvents: "none",
-          zIndex: 3,
-          opacity: 0.9,
-        }}
+      <CardBackground
+        design={d}
+        isCTA={isCTA}
+        s={s}
+        showOrb={!isCTA && !mockup}
+        boostOrb={isCover}
       />
+      {d.logoChip ? (
+        <div
+          style={{
+            position: "absolute",
+            top: 12 * s,
+            right: 12 * s,
+            zIndex: 3,
+            background: "#14121c",
+            borderRadius: 10 * s,
+            padding: 5 * s,
+            display: "flex",
+            pointerEvents: "none",
+          }}
+        >
+          <img
+            src={logoSrc}
+            alt="Heda"
+            style={{
+              width: 26 * s * logoScale,
+              height: 26 * s * logoScale,
+              objectFit: "contain",
+              display: "block",
+              opacity: 0.95,
+            }}
+          />
+        </div>
+      ) : (
+        <img
+          src={logoSrc}
+          alt="Heda"
+          style={{
+            position: "absolute",
+            top: 16 * s,
+            right: 16 * s,
+            width: 32 * s * logoScale,
+            height: 32 * s * logoScale,
+            objectFit: "contain",
+            pointerEvents: "none",
+            zIndex: 3,
+            opacity: 0.9,
+          }}
+        />
+      )}
 
-      {!isCTA && !mockup && <div style={orbStyle} />}
-
-      <div>
+      <div style={{ position: "relative", zIndex: 1 }}>
         <div
           style={{
             display: "flex",
@@ -198,6 +222,8 @@ export const Card: React.FC<CardProps> = ({
         justifyContent: "space-between",
         alignItems: "center",
         marginTop: 16 * s,
+        position: "relative",
+        zIndex: 1,
       }}
     >
       {slideIndex === 0 && (
@@ -213,40 +239,161 @@ export const Card: React.FC<CardProps> = ({
           @joinheda
         </div>
       )}
-      {isCTA && slide.cta && (
+      {isCTA &&
+        slide.cta &&
+        (d.chrome.ctaButton ? (
+          <div
+            style={{
+              display: "inline-block",
+              background: "#fff",
+              color: "#5a45b0",
+              fontSize: 14 * s,
+              fontWeight: 800,
+              padding: `${10 * s}px ${22 * s}px`,
+              borderRadius: 999,
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            {slide.cta}
+          </div>
+        ) : (
+          <div
+            style={{
+              fontSize: 14 * s,
+              fontWeight: 700,
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            {slide.cta}
+          </div>
+        ))}
+      {!isCTA &&
+        slideIndex < total - 1 &&
+        (d.chrome.swipePill ? (
+          <div
+            style={{
+              marginLeft: "auto",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5 * s,
+              padding: `${5 * s}px ${12 * s}px`,
+              borderRadius: 999,
+              background: d.chip.bg,
+              border: d.chip.border,
+              color: d.chip.text,
+              fontSize: 10 * s,
+              fontWeight: 700,
+              fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: "0.1em",
+            }}
+          >
+            SWIPE →
+          </div>
+        ) : (
+          <div
+            style={{
+              marginLeft: "auto",
+              fontSize: 11 * s,
+              opacity: 0.4,
+              fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: "0.1em",
+            }}
+          >
+            SWIPE -&gt;
+          </div>
+        ))}
+    </div>
+  );
+
+  const profileRow =
+    isCTA && d.chrome.profileRow ? (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10 * s,
+          marginBottom: 14 * s,
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
         <div
           style={{
-            fontSize: 14 * s,
+            width: 30 * s,
+            height: 30 * s,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.15)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <img
+            src={logoSrc}
+            alt="Heda"
+            style={{ width: 20 * s, height: 20 * s, objectFit: "contain" }}
+          />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              fontSize: 12.5 * s,
+              fontWeight: 700,
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            @joinheda
+          </div>
+          <div style={{ fontSize: 10 * s, opacity: 0.7 }}>Find your people</div>
+        </div>
+        <div
+          style={{
+            padding: `${5 * s}px ${14 * s}px`,
+            borderRadius: 999,
+            border: "1.5px solid rgba(255,255,255,0.7)",
+            fontSize: 11 * s,
             fontWeight: 700,
             fontFamily: "'DM Sans', sans-serif",
           }}
         >
-          {slide.cta}
+          Follow
         </div>
-      )}
-      {!isCTA && slideIndex < total - 1 && (
-        <div
-          style={{
-            marginLeft: "auto",
-            fontSize: 11 * s,
-            opacity: 0.4,
-            fontFamily: "'JetBrains Mono', monospace",
-            letterSpacing: "0.1em",
-          }}
-        >
-          SWIPE -&gt;
-        </div>
-      )}
-    </div>
-  );
+      </div>
+    ) : null;
 
-  const dots = (
+  const pagination = d.chrome.progressBar ? (
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 3.5 * s,
+        background: isCTA
+          ? "rgba(255,255,255,0.2)"
+          : d.mode === "light"
+            ? "rgba(90,69,176,0.15)"
+            : "rgba(112,91,207,0.18)",
+        zIndex: 2,
+      }}
+    >
+      <div
+        style={{
+          width: `${((slideIndex + 1) / total) * 100}%`,
+          height: "100%",
+          background: isCTA ? "#fff" : d.dots.active,
+        }}
+      />
+    </div>
+  ) : (
     <CardDots
       total={total}
       active={slideIndex}
       isCTA={isCTA}
       scale={s}
       activeProgress={dotAnimationProgress}
+      colors={d.dots}
     />
   );
 
@@ -266,7 +413,12 @@ export const Card: React.FC<CardProps> = ({
       {isCTA ? (
         slide.headline.replace(/\*\*/g, "")
       ) : (
-        <BoldText text={slide.headline} hlColor={hlColor} />
+        <BoldText
+          text={slide.headline}
+          hlColor={hlColor}
+          highlight={d.highlightStyle}
+          accentLight={d.accentLight}
+        />
       )}
     </div>
   );
@@ -284,6 +436,25 @@ export const Card: React.FC<CardProps> = ({
       {slide.sub}
     </div>
   );
+
+  // Variant layouts only apply to the plain body; parser failure falls back to default.
+  const variantContent =
+    !isCTA && !mockup && d.variant !== "default"
+      ? CardVariantBody({
+          slide,
+          design: d,
+          s,
+          headlineBaseSize,
+          headlineOpacity,
+          headlineTranslateY,
+          subOpacity,
+          subTranslateY,
+        })
+      : null;
+
+  const frameTilt = d.mockupFrame?.tilt
+    ? " perspective(900px) rotateY(-6deg) rotateZ(-2deg)"
+    : "";
 
   const handlePointerDown = (event: React.PointerEvent<HTMLImageElement>) => {
     if (!mockup || !canDragMockup) return;
@@ -349,33 +520,63 @@ export const Card: React.FC<CardProps> = ({
     return (
       <div style={cardStyle} className={className}>
         {chrome}
-        <img
-          src={mockup.src}
-          alt={mockup.name ? `${mockup.name} mockup` : "Uploaded mockup"}
-          draggable={false}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerEnd}
-          onPointerCancel={handlePointerEnd}
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "50%",
-            width: "68%",
-            height: "68%",
-            objectFit: mockup.fit,
-            transform: `translate(-50%, -50%) translate(${mockup.offsetX * s}px, ${mockup.offsetY * s}px) scale(${clampScale(mockup.scale)})`,
-            transformOrigin: "center",
-            cursor: canDragMockup ? (dragging ? "grabbing" : "grab") : "default",
-            touchAction: "none",
-            userSelect: "none",
-            zIndex: 1,
-            filter:
-              theme === "deep"
-                ? "drop-shadow(0 18px 32px rgba(0,0,0,0.35))"
-                : "drop-shadow(0 16px 26px rgba(0,0,0,0.24))",
-          }}
-        />
+        {d.mockupFrame ? (
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              width: d.mockupFrame.kind === "phone" ? "54%" : "76%",
+              transform: `translate(-50%, -50%) translate(${mockup.offsetX * s}px, ${mockup.offsetY * s}px) scale(${clampScale(mockup.scale)})${frameTilt}`,
+              transformOrigin: "center",
+              zIndex: 1,
+            }}
+          >
+            <DeviceFrame frame={d.mockupFrame} s={s} design={d}>
+              <img
+                src={mockup.src}
+                alt={mockup.name ? `${mockup.name} mockup` : "Uploaded mockup"}
+                draggable={false}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerEnd}
+                onPointerCancel={handlePointerEnd}
+                style={{
+                  width: "100%",
+                  display: "block",
+                  cursor: canDragMockup ? (dragging ? "grabbing" : "grab") : "default",
+                  touchAction: "none",
+                  userSelect: "none",
+                }}
+              />
+            </DeviceFrame>
+          </div>
+        ) : (
+          <img
+            src={mockup.src}
+            alt={mockup.name ? `${mockup.name} mockup` : "Uploaded mockup"}
+            draggable={false}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerEnd}
+            onPointerCancel={handlePointerEnd}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              width: "68%",
+              height: "68%",
+              objectFit: mockup.fit,
+              transform: `translate(-50%, -50%) translate(${mockup.offsetX * s}px, ${mockup.offsetY * s}px) scale(${clampScale(mockup.scale)})`,
+              transformOrigin: "center",
+              cursor: canDragMockup ? (dragging ? "grabbing" : "grab") : "default",
+              touchAction: "none",
+              userSelect: "none",
+              zIndex: 1,
+              filter: d.mockupShadow,
+            }}
+          />
+        )}
 
         <div
           style={{
@@ -407,7 +608,7 @@ export const Card: React.FC<CardProps> = ({
         </div>
 
         {footer}
-        {dots}
+        {pagination}
       </div>
     );
   }
@@ -428,31 +629,57 @@ export const Card: React.FC<CardProps> = ({
           position: "relative",
         }}
       >
-        <img
-          src={mockup.src}
-          alt={mockup.name ? `${mockup.name} mockup` : "Uploaded mockup"}
-          draggable={false}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerEnd}
-          onPointerCancel={handlePointerEnd}
-          style={{
-            maxWidth: "100%",
-            maxHeight: "100%",
-            width: "100%",
-            height: "100%",
-            objectFit: mockup.fit,
-            transform: `translate(${mockup.offsetX * s}px, ${mockup.offsetY * s}px) scale(${clampScale(mockup.scale)})`,
-            transformOrigin: "center",
-            cursor: canDragMockup ? (dragging ? "grabbing" : "grab") : "default",
-            touchAction: "none",
-            userSelect: "none",
-            filter:
-              theme === "deep"
-                ? "drop-shadow(0 18px 32px rgba(0,0,0,0.35))"
-                : "drop-shadow(0 16px 26px rgba(0,0,0,0.24))",
-          }}
-        />
+        {d.mockupFrame ? (
+          <div
+            style={{
+              width: d.mockupFrame.kind === "phone" ? "62%" : "92%",
+              transform: `translate(${mockup.offsetX * s}px, ${mockup.offsetY * s}px) scale(${clampScale(mockup.scale)})${frameTilt}`,
+              transformOrigin: "center",
+            }}
+          >
+            <DeviceFrame frame={d.mockupFrame} s={s} design={d}>
+              <img
+                src={mockup.src}
+                alt={mockup.name ? `${mockup.name} mockup` : "Uploaded mockup"}
+                draggable={false}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerEnd}
+                onPointerCancel={handlePointerEnd}
+                style={{
+                  width: "100%",
+                  display: "block",
+                  cursor: canDragMockup ? (dragging ? "grabbing" : "grab") : "default",
+                  touchAction: "none",
+                  userSelect: "none",
+                }}
+              />
+            </DeviceFrame>
+          </div>
+        ) : (
+          <img
+            src={mockup.src}
+            alt={mockup.name ? `${mockup.name} mockup` : "Uploaded mockup"}
+            draggable={false}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerEnd}
+            onPointerCancel={handlePointerEnd}
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              width: "100%",
+              height: "100%",
+              objectFit: mockup.fit,
+              transform: `translate(${mockup.offsetX * s}px, ${mockup.offsetY * s}px) scale(${clampScale(mockup.scale)})`,
+              transformOrigin: "center",
+              cursor: canDragMockup ? (dragging ? "grabbing" : "grab") : "default",
+              touchAction: "none",
+              userSelect: "none",
+              filter: d.mockupShadow,
+            }}
+          />
+        )}
       </div>
     );
     const textElement = (
@@ -493,13 +720,15 @@ export const Card: React.FC<CardProps> = ({
             paddingTop: 10 * s,
             paddingBottom: 8 * s,
             minHeight: 0,
+            position: "relative",
+            zIndex: 1,
           }}
         >
           {isImageFirst ? imageElement : textElement}
           {isImageFirst ? textElement : imageElement}
         </div>
         {footer}
-        {dots}
+        {pagination}
       </div>
     );
   }
@@ -508,20 +737,32 @@ export const Card: React.FC<CardProps> = ({
     <div style={cardStyle} className={className}>
       {chrome}
 
+      {isCover && d.cover.watermark && (
+        <CoverWatermark post={post} design={d} s={s} />
+      )}
+
       <div
         style={{
           flex: 1,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
+          position: "relative",
+          zIndex: 1,
         }}
       >
-        {headlineText}
-        {subText}
+        {isCover && d.cover.chip && <CoverSeriesChip post={post} design={d} s={s} />}
+        {variantContent ?? (
+          <>
+            {headlineText}
+            {subText}
+          </>
+        )}
       </div>
 
+      {profileRow}
       {footer}
-      {dots}
+      {pagination}
     </div>
   );
 };
