@@ -2,6 +2,7 @@ import type { BrandKit, Campaign, Design } from "../data/marketing/types";
 
 const KEY = "heda.marketing.v1";
 const CORRUPT_KEY = "heda.marketing.corrupt";
+const ACTIVE_KEY = "heda.marketing.active.v1";
 const VERSION = 1;
 
 export interface PersistedState {
@@ -46,6 +47,24 @@ export function savePersisted(state: Omit<PersistedState, "version">): void {
     localStorage.setItem(KEY, JSON.stringify({ version: VERSION, ...state }));
   } catch {
     /* quota or unavailable — JSON backup is the durable path */
+  }
+}
+
+/** Which campaign was open last. Kept apart from PersistedState so the
+ *  schema (and its version) stays about content, not session state. */
+export function loadActiveCampaignId(): string | null {
+  try {
+    return localStorage.getItem(ACTIVE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function saveActiveCampaignId(id: string): void {
+  try {
+    localStorage.setItem(ACTIVE_KEY, id);
+  } catch {
+    /* ignore */
   }
 }
 
@@ -102,19 +121,42 @@ export function downloadBackup(backup: BackupFile): void {
   URL.revokeObjectURL(url);
 }
 
-export function parseBackup(text: string): BackupFile | null {
+function isBackup(data: unknown): data is BackupFile {
+  const d = data as BackupFile | null;
+  return Boolean(
+    d &&
+      d.kind === "heda-marketing-campaign" &&
+      d.campaign &&
+      Array.isArray(d.designs) &&
+      d.brandKit
+  );
+}
+
+/** Several campaigns in one file — each entry is a plain BackupFile. */
+export interface BundleFile {
+  version: number;
+  kind: "heda-marketing-bundle";
+  backups: BackupFile[];
+}
+
+/**
+ * Accepts either format and returns the campaigns to import, in file order.
+ * Single-campaign backups stay valid, so older exports keep working.
+ */
+export function parseBackupOrBundle(text: string): BackupFile[] | null {
   try {
     const data = JSON.parse(text);
+    if (isBackup(data)) return [data];
     if (
-      data?.kind === "heda-marketing-campaign" &&
-      data.campaign &&
-      Array.isArray(data.designs) &&
-      data.brandKit
+      data?.kind === "heda-marketing-bundle" &&
+      Array.isArray(data.backups) &&
+      data.backups.length > 0 &&
+      data.backups.every(isBackup)
     ) {
-      return data as BackupFile;
+      return data.backups as BackupFile[];
     }
   } catch {
-    /* not a valid backup */
+    /* not a valid backup or bundle */
   }
   return null;
 }

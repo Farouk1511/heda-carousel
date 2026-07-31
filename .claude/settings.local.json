@@ -8,7 +8,15 @@
       "Bash(ls -la \"C:\\\\Users\\\\kazee\\\\Documents\\\\heda-workspace\\\\heda-carousel\\\\\")",
       "Bash(ls \"C:\\\\Users\\\\kazee\\\\Documents\\\\heda-workspace\")",
       "Bash(npx tsx *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(node -e ' *)",
+      "Bash(node gen-bundle.js \"C:/Users/kazee/Documents/heda-workspace/heda-carousel/marketing/heda-campaign-bundle.json\")",
+      "Bash(npx vite *)",
+      "WebSearch",
+      "WebFetch(domain:buffer.com)",
+      "Bash(echo \"BUILD EXIT: $?\")",
+      "Bash(grep -n \"#ottawa \\\\|#ottawa$\\\\|#launchday\\\\|#fitness\\\\|#workout \\\\|#health\" marketing/launch-campaign.md)",
+      "Bash(node \"C:/Users/kazee/AppData/Local/Temp/claude/C--Users-kazee-Documents-heda-workspace-heda-carousel/c149102c-0b17-41c7-89cf-f2cf8f041a9b/scratchpad/check-captions.js\")"
     ]
   }
 }

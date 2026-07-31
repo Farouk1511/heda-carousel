@@ -40,6 +40,8 @@ export function buildPostData(months: MonthDraft[]) {
           weekTitle: week.title,
           title: post.title,
           tags: post.tags,
+          caption: post.caption,
+          hashtags: post.hashtags,
           slides: post.slides,
         });
         postId++;

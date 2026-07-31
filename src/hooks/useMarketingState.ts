@@ -26,9 +26,11 @@ import { getAllAssets, putAsset } from "../utils/assetStore";
 import {
   buildBackup,
   downloadBackup,
+  loadActiveCampaignId,
   loadPersisted,
-  parseBackup,
+  parseBackupOrBundle,
   savePersisted,
+  saveActiveCampaignId,
 } from "../utils/marketingPersistence";
 
 /** Any subset of element fields across the three element kinds. */
@@ -52,7 +54,13 @@ export function useMarketingState() {
   /** assetId -> resolved data URL (bytes persisted in IndexedDB via assetStore). */
   const [assets, setAssets] = useState<Record<string, string>>({});
 
-  const initialCampaign = persisted?.campaigns[0];
+  const initialCampaign = useMemo(() => {
+    if (!persisted) return undefined;
+    const lastId = loadActiveCampaignId();
+    return (
+      persisted.campaigns.find((c) => c.id === lastId) ?? persisted.campaigns[0]
+    );
+  }, [persisted]);
   const initialDesignId = initialCampaign?.designIds[0] ?? "design-seed";
   const initialDesign =
     persisted?.designs.find((d) => d.id === initialDesignId) ?? undefined;
@@ -84,6 +92,10 @@ export function useMarketingState() {
     const t = setTimeout(() => savePersisted({ campaigns, brandKits, designs }), 500);
     return () => clearTimeout(t);
   }, [campaigns, brandKits, designs]);
+
+  useEffect(() => {
+    saveActiveCampaignId(activeCampaignId);
+  }, [activeCampaignId]);
 
   // Seed the brand logo asset from /LOGO.png on first mount.
   useEffect(() => {
@@ -385,6 +397,22 @@ export function useMarketingState() {
     setSelectedElementId(null);
   }, []);
 
+  /** Switch campaigns, landing on that campaign's first design. */
+  const selectCampaign = useCallback(
+    (campaignId: string) => {
+      const campaign = campaigns.find((c) => c.id === campaignId);
+      if (!campaign) return;
+      const designId = campaign.designIds[0] ?? "";
+      setActiveCampaignId(campaignId);
+      setActiveDesignId(designId);
+      setActiveSizeId(
+        designs.find((d) => d.id === designId)?.sizes[0]?.id ?? "ig-square"
+      );
+      setSelectedElementId(null);
+    },
+    [campaigns, designs]
+  );
+
   // --- Brand kit -----------------------------------------------------------
 
   const updateBrand = useCallback(
@@ -434,35 +462,59 @@ export function useMarketingState() {
 
   const importBackupFile = useCallback(
     (text: string): boolean => {
-      const backup = parseBackup(text);
-      if (!backup) return false;
-      // Re-register assets (keep ids — same bytes on collision).
-      Object.entries(backup.assets).forEach(([id, url]) => registerAsset(id, url));
-      // Remap design + campaign ids to fresh ones so imports always add as new
-      // entities (fixed seed ids like "design-seed" would otherwise collide).
-      const idMap = new Map<string, string>();
-      const newDesigns = backup.designs.map((d) => {
-        const nid = newId("design");
-        idMap.set(d.id, nid);
-        return { ...d, id: nid };
+      const backups = parseBackupOrBundle(text);
+      if (!backups) return false;
+
+      const addedDesigns: Design[] = [];
+      const addedCampaigns: Campaign[] = [];
+      const addedKits: BrandKit[] = [];
+
+      for (const backup of backups) {
+        // Re-register assets (keep ids — same bytes on collision).
+        Object.entries(backup.assets ?? {}).forEach(([id, url]) =>
+          registerAsset(id, url)
+        );
+        // Remap design + campaign ids to fresh ones so imports always add as new
+        // entities (fixed seed ids like "design-seed" would otherwise collide).
+        const idMap = new Map<string, string>();
+        for (const d of backup.designs) {
+          const nid = newId("design");
+          idMap.set(d.id, nid);
+          addedDesigns.push({ ...d, id: nid });
+        }
+        addedCampaigns.push({
+          ...backup.campaign,
+          id: newId("campaign"),
+          designIds: backup.campaign.designIds
+            .map((id) => idMap.get(id))
+            .filter((id): id is string => Boolean(id)),
+          updatedAt: new Date().toISOString(),
+        });
+        addedKits.push(backup.brandKit);
+      }
+
+      // A kit whose id already exists wins, so a bundle shipping "brand-default"
+      // adopts the user's live Heda colors instead of overwriting them.
+      setBrandKits((ks) => {
+        const merged = [...ks];
+        for (const kit of addedKits) {
+          if (!merged.some((k) => k.id === kit.id)) merged.push(kit);
+        }
+        return merged;
       });
-      const newCampaign: Campaign = {
-        ...backup.campaign,
-        id: newId("campaign"),
-        designIds: backup.campaign.designIds
-          .map((id) => idMap.get(id))
-          .filter((id): id is string => Boolean(id)),
-        updatedAt: new Date().toISOString(),
-      };
-      setBrandKits((ks) =>
-        ks.some((k) => k.id === backup.brandKit.id) ? ks : [...ks, backup.brandKit]
-      );
-      setDesigns((ds) => [...ds, ...newDesigns]);
-      setCampaigns((cs) => [...cs, newCampaign]);
-      setActiveCampaignId(newCampaign.id);
-      setActiveDesignId(newCampaign.designIds[0] ?? "");
-      setActiveSizeId(newDesigns[0]?.sizes[0]?.id ?? "ig-square");
-      setSelectedElementId(null);
+      setDesigns((ds) => [...ds, ...addedDesigns]);
+      setCampaigns((cs) => [...cs, ...addedCampaigns]);
+
+      const first = addedCampaigns[0];
+      if (first) {
+        const designId = first.designIds[0] ?? "";
+        setActiveCampaignId(first.id);
+        setActiveDesignId(designId);
+        setActiveSizeId(
+          addedDesigns.find((d) => d.id === designId)?.sizes[0]?.id ?? "ig-square"
+        );
+        setSelectedElementId(null);
+      }
       return true;
     },
     [registerAsset]
@@ -482,6 +534,7 @@ export function useMarketingState() {
     activeCampaign,
     activeCampaignId,
     setActiveCampaignId,
+    selectCampaign,
     activeDesign,
     activeDesignId,
     setActiveDesignId,

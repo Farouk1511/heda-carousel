@@ -5,7 +5,7 @@ import JSZip from "jszip";
 import type { Post } from "../data/posts";
 import type { ThemeName } from "../data/themes";
 import type { AspectRatio } from "../hooks/useCarouselState";
-import { HASHTAGS } from "../data/posts";
+import { buildCaption } from "../data/posts";
 import { Card } from "../components/Card";
 import { LeaderboardCard } from "../components/LeaderboardCard";
 import type { LeaderboardData } from "../data/leaderboard/types";
@@ -204,9 +204,7 @@ export async function exportAllSlides(
       folder.file(`slide_${i + 1}_${typeName}.png`, blob);
     }
 
-    const cleanHL = post.slides[0].headline.replace(/\*\*/g, "");
-    const caption = `${cleanHL}\n\n${post.slides[0].sub}\n\nSwipe through for the full truth. \u27A1\uFE0F\n\n${HASHTAGS}`;
-    folder.file("caption.txt", caption);
+    folder.file("caption.txt", buildCaption(post));
 
     setProgress("Zipping...");
     const zipBlob = await zip.generateAsync({ type: "blob" });
@@ -271,10 +269,7 @@ export async function exportAllPosts(
       }
     }
 
-    // Add caption per post
-    const cleanHL = post.slides[0].headline.replace(/\*\*/g, "");
-    const caption = `${cleanHL}\n\n${post.slides[0].sub}\n\nSwipe through for the full truth. \u27A1\uFE0F\n\n${HASHTAGS}`;
-    postFolder.file("caption.txt", caption);
+    postFolder.file("caption.txt", buildCaption(post));
   }
 
   onProgress({ current: totalSlides, total: totalSlides, label: "Zipping..." });

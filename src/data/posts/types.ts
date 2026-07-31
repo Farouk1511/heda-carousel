@@ -34,6 +34,10 @@ export interface Post {
   weekTitle: string;
   title: string;
   tags: string[];
+  /** Caption body as published. Omit to fall back to the generated one. */
+  caption?: string;
+  /** Overrides the default tag set. Instagram counts 5 as the useful ceiling. */
+  hashtags?: string;
   slides: Slide[];
 }
 
@@ -46,6 +50,8 @@ export interface PostDraft {
   day: number;
   title: string;
   tags: string[];
+  caption?: string;
+  hashtags?: string;
   slides: Slide[];
 }
 

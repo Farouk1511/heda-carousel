@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import type { MockupLayout, Post, SlideMockup, SlideTextTransform } from "../data/posts";
 import type { ThemeName } from "../data/themes";
 import type { AspectRatio } from "../hooks/useCarouselState";
-import { HASHTAGS } from "../data/posts";
+import { buildCaption } from "../data/posts";
 import type {
   ChromeOptions,
   HighlightStyle,
@@ -92,8 +92,7 @@ export const EditPanel: React.FC<EditPanelProps> = ({
     if (progressRef.current) progressRef.current.textContent = msg;
   };
 
-  const cleanHL = post.slides[0].headline.replace(/\*\*/g, "");
-  const captionHTML = `${cleanHL} \u{1F4AA}\n\n${post.slides[0].sub}\n\nSwipe through for the full truth. \u27A1\uFE0F\n\n${HASHTAGS}`;
+  const captionHTML = buildCaption(post);
 
   const handleExportCurrent = async () => {
     await exportCurrentSlide(

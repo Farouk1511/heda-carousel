@@ -34,7 +34,7 @@ export const MarketingSidebar: React.FC<MarketingSidebarProps> = ({
   state,
   onNewDesign,
 }) => {
-  const { activeCampaign, designs, brand } = state;
+  const { activeCampaign, campaigns, designs, brand } = state;
   const logoRef = useRef<HTMLInputElement>(null);
   const backupRef = useRef<HTMLInputElement>(null);
 
@@ -67,8 +67,23 @@ export const MarketingSidebar: React.FC<MarketingSidebarProps> = ({
         <div className="logo-sub">campaign studio</div>
 
         <div className="section-label" style={{ marginTop: 22 }}>
-          {activeCampaign?.name ?? "Campaign"}
+          CAMPAIGN
         </div>
+        {campaigns.length > 1 ? (
+          <select
+            className="mk-select"
+            value={activeCampaign?.id ?? ""}
+            onChange={(e) => state.selectCampaign(e.target.value)}
+          >
+            {campaigns.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <div className="mk-campaign-name">{activeCampaign?.name ?? "Campaign"}</div>
+        )}
         <button className="mk-add-btn mk-new-design" onClick={onNewDesign}>
           + New Design
         </button>

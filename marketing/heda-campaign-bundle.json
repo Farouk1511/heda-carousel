@@ -1,0 +1,3208 @@
+{
+  "version": 1,
+  "kind": "heda-marketing-bundle",
+  "backups": [
+    {
+      "version": 1,
+      "kind": "heda-marketing-campaign",
+      "campaign": {
+        "id": "campaign-launch-week",
+        "name": "Launch Week (Jul 27–31)",
+        "brandKitId": "brand-default",
+        "designIds": [
+          "design-tease-31-07",
+          "design-countdown-3-days",
+          "design-countdown-2-days",
+          "design-tomorrow-9am",
+          "design-heda-is-here",
+          "design-don-t-come-alone"
+        ],
+        "createdAt": "2026-07-27T09:00:00.000Z",
+        "updatedAt": "2026-07-27T09:00:00.000Z"
+      },
+      "designs": [
+        {
+          "id": "design-tease-31-07",
+          "name": "Tease — 31.07",
+          "background": {
+            "type": "gradient",
+            "gradient": "linear-gradient(160deg, #0f0d17 0%, #241d38 100%)"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-4",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "SOMETHING'S COMING",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-1",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.379,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.358
+                },
+                "story": {
+                  "fy": 0.403
+                }
+              },
+              "text": "31.07",
+              "fontSize": 260,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1,
+              "letterSpacing": -0.04,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-rule-2",
+              "type": "shape",
+              "fx": 0.5,
+              "fy": 0.516,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.53
+                },
+                "story": {
+                  "fy": 0.5
+                }
+              },
+              "shape": "line",
+              "w": 120,
+              "h": 4,
+              "fill": "brand:accent",
+              "borderRadius": 0
+            },
+            {
+              "id": "el-t-3",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.598,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.632
+                },
+                "story": {
+                  "fy": 0.557
+                }
+              },
+              "text": "Something's coming for the empty spot next to you.",
+              "fontSize": 40,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.35,
+              "letterSpacing": 0,
+              "maxWidth": 760
+            },
+            {
+              "id": "el-img-5",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-countdown-3-days",
+          "name": "Countdown — 3 days",
+          "background": {
+            "type": "color",
+            "color": "brand:bg"
+          },
+          "sizes": [
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            },
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-9",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.135,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.111
+                },
+                "ig-square": {
+                  "fy": 0.139
+                }
+              },
+              "text": "HEDA · LAUNCH WEEK",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-6",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.386,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.358
+                },
+                "ig-square": {
+                  "fy": 0.336
+                }
+              },
+              "text": "**3**",
+              "fontSize": 340,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1,
+              "letterSpacing": -0.05,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-7",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.514,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.541
+                },
+                "ig-square": {
+                  "fy": 0.563
+                }
+              },
+              "text": "days",
+              "fontSize": 72,
+              "fontFamily": "display",
+              "fontWeight": 600,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1,
+              "letterSpacing": -0.03,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-8",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.578,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.632
+                },
+                "ig-square": {
+                  "fy": 0.678
+                }
+              },
+              "text": "Nobody quits because it's too hard.\nThey quit because nobody noticed.",
+              "fontSize": 34,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.4,
+              "letterSpacing": 0,
+              "maxWidth": 780
+            },
+            {
+              "id": "el-img-10",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.849,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.911
+                },
+                "ig-square": {
+                  "fy": 0.889
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-countdown-2-days",
+          "name": "Countdown — 2 days",
+          "background": {
+            "type": "gradient",
+            "gradient": "radial-gradient(circle at 85% 12%, rgba(112,91,207,0.45) 0%, transparent 55%), #12101a"
+          },
+          "sizes": [
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            },
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-14",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.135,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.111
+                },
+                "ig-square": {
+                  "fy": 0.139
+                }
+              },
+              "text": "HEDA · LAUNCH WEEK",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-11",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.386,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.358
+                },
+                "ig-square": {
+                  "fy": 0.336
+                }
+              },
+              "text": "**2**",
+              "fontSize": 340,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1,
+              "letterSpacing": -0.05,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-12",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.514,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.541
+                },
+                "ig-square": {
+                  "fy": 0.563
+                }
+              },
+              "text": "days",
+              "fontSize": 72,
+              "fontFamily": "display",
+              "fontWeight": 600,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1,
+              "letterSpacing": -0.03,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-13",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.578,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.632
+                },
+                "ig-square": {
+                  "fy": 0.678
+                }
+              },
+              "text": "Built by people who kept getting cancelled on.",
+              "fontSize": 34,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.4,
+              "letterSpacing": 0,
+              "maxWidth": 760
+            },
+            {
+              "id": "el-img-15",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.849,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.911
+                },
+                "ig-square": {
+                  "fy": 0.889
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-tomorrow-9am",
+          "name": "Tomorrow — 9AM",
+          "background": {
+            "type": "gradient",
+            "gradient": "linear-gradient(160deg, #0f0d17 0%, #241d38 100%)"
+          },
+          "sizes": [
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            },
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-19",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.135,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.111
+                },
+                "ig-square": {
+                  "fy": 0.139
+                }
+              },
+              "text": "31.07 · 9AM",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-16",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.398,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.377
+                },
+                "ig-square": {
+                  "fy": 0.358
+                }
+              },
+              "text": "Tomorrow.",
+              "fontSize": 128,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.02,
+              "letterSpacing": -0.035,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-rule-17",
+              "type": "shape",
+              "fx": 0.5,
+              "fy": 0.456,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.459
+                },
+                "ig-square": {
+                  "fy": 0.461
+                }
+              },
+              "shape": "line",
+              "w": 120,
+              "h": 4,
+              "fill": "brand:accent",
+              "borderRadius": 0
+            },
+            {
+              "id": "el-t-18",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.508,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.532
+                },
+                "ig-square": {
+                  "fy": 0.553
+                }
+              },
+              "text": "Set an alarm. Tell your gym partner —\nif they show up, keep them.",
+              "fontSize": 38,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.4,
+              "letterSpacing": 0,
+              "maxWidth": 820
+            },
+            {
+              "id": "el-img-20",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.849,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-portrait": {
+                  "fy": 0.911
+                },
+                "ig-square": {
+                  "fy": 0.889
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-heda-is-here",
+          "name": "Heda is here",
+          "background": {
+            "type": "gradient",
+            "gradient": "linear-gradient(135deg, #705bcf 0%, #4a3795 100%)"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-24",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "LIVE NOW",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "#ffffff",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-21",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.369,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.347
+                },
+                "story": {
+                  "fy": 0.396
+                }
+              },
+              "text": "Heda is here.",
+              "fontSize": 132,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "#ffffff",
+              "align": "center",
+              "lineHeight": 1.02,
+              "letterSpacing": -0.035,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-22",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.545,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.567
+                },
+                "story": {
+                  "fy": 0.52
+                }
+              },
+              "text": "Find a gym partner who actually shows up.",
+              "fontSize": 42,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "#efeaff",
+              "align": "center",
+              "lineHeight": 1.35,
+              "letterSpacing": 0,
+              "maxWidth": 800
+            },
+            {
+              "id": "el-t-23",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.636,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.68
+                },
+                "story": {
+                  "fy": 0.584
+                }
+              },
+              "text": "Free on the App Store — link in bio.",
+              "fontSize": 30,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "#ffffff",
+              "align": "center",
+              "lineHeight": 1.3,
+              "letterSpacing": 0.06,
+              "maxWidth": 800
+            },
+            {
+              "id": "el-img-25",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-don-t-come-alone",
+          "name": "Don't come alone",
+          "background": {
+            "type": "color",
+            "color": "brand:bg"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-28",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "SEND THIS TO ONE PERSON",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-26",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.413,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.399
+                },
+                "story": {
+                  "fy": 0.43
+                }
+              },
+              "text": "Don't come **alone.**",
+              "fontSize": 116,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.04,
+              "letterSpacing": -0.035,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-27",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.576,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.603
+                },
+                "story": {
+                  "fy": 0.545
+                }
+              },
+              "text": "Send this to the friend who said Monday.",
+              "fontSize": 40,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.35,
+              "letterSpacing": 0,
+              "maxWidth": 780
+            },
+            {
+              "id": "el-img-29",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        }
+      ],
+      "brandKit": {
+        "id": "brand-default",
+        "name": "Heda",
+        "colors": {
+          "accent": "#705bcf",
+          "accentLight": "#8b7ad8",
+          "bg": "#13111a",
+          "text": "#e8e6f0",
+          "highlight": "#705bcf",
+          "palette": [
+            "#705bcf",
+            "#8b7ad8",
+            "#13111a",
+            "#e8e6f0",
+            "#0a0a12"
+          ]
+        },
+        "fonts": {
+          "display": "'Space Grotesk', sans-serif",
+          "body": "'DM Sans', sans-serif",
+          "mono": "'JetBrains Mono', monospace"
+        },
+        "logoAssetId": "asset-logo"
+      },
+      "assets": {}
+    },
+    {
+      "version": 1,
+      "kind": "heda-marketing-campaign",
+      "campaign": {
+        "id": "campaign-ad-angles",
+        "name": "Meta Ads — Angles",
+        "brandKitId": "brand-default",
+        "designIds": [
+          "design-ad-the-loneliest-room",
+          "design-ad-coming-for-your-spot",
+          "design-ad-the-streak",
+          "design-ad-nobody-noticed",
+          "design-ad-6am",
+          "design-ad-known-for-your-grind"
+        ],
+        "createdAt": "2026-07-27T09:00:00.000Z",
+        "updatedAt": "2026-07-27T09:00:00.000Z"
+      },
+      "designs": [
+        {
+          "id": "design-ad-the-loneliest-room",
+          "name": "Ad — The loneliest room",
+          "background": {
+            "type": "gradient",
+            "gradient": "linear-gradient(145deg, #13111a 0%, #1c1826 100%)"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            },
+            {
+              "id": "fb-landscape",
+              "label": "FB / LinkedIn Link",
+              "w": 1200,
+              "h": 628,
+              "preset": "fb-landscape"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-32",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                },
+                "fb-landscape": {
+                  "fy": 0.139
+                }
+              },
+              "text": "BELONGING",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-30",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.405,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.391
+                },
+                "story": {
+                  "fy": 0.421
+                },
+                "fb-landscape": {
+                  "fy": 0.391
+                }
+              },
+              "text": "The gym is full of people and completely **lonely.**",
+              "fontSize": 92,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.05,
+              "letterSpacing": -0.02,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-31",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.584,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.615
+                },
+                "story": {
+                  "fy": 0.547
+                },
+                "fb-landscape": {
+                  "fy": 0.615
+                }
+              },
+              "text": "Heda matches you with people who train where you train.",
+              "fontSize": 38,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.35,
+              "letterSpacing": 0,
+              "maxWidth": 800
+            },
+            {
+              "id": "el-img-33",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                },
+                "fb-landscape": {
+                  "fy": 0.889
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-ad-coming-for-your-spot",
+          "name": "Ad — Coming for your spot",
+          "background": {
+            "type": "gradient",
+            "gradient": "linear-gradient(135deg, #2a2150 0%, #705bcf 100%)"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            },
+            {
+              "id": "fb-landscape",
+              "label": "FB / LinkedIn Link",
+              "w": 1200,
+              "h": 628,
+              "preset": "fb-landscape"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-36",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                },
+                "fb-landscape": {
+                  "fy": 0.139
+                }
+              },
+              "text": "RIVALRY",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "#ffffff",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-34",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.405,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.391
+                },
+                "story": {
+                  "fy": 0.421
+                },
+                "fb-landscape": {
+                  "fy": 0.391
+                }
+              },
+              "text": "Someone is coming for your spot.",
+              "fontSize": 104,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "#ffffff",
+              "align": "center",
+              "lineHeight": 1.04,
+              "letterSpacing": -0.02,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-35",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.597,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.632
+                },
+                "story": {
+                  "fy": 0.556
+                },
+                "fb-landscape": {
+                  "fy": 0.632
+                }
+              },
+              "text": "Weekly leaderboards. Real names. Your gym.",
+              "fontSize": 38,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "#efeaff",
+              "align": "center",
+              "lineHeight": 1.35,
+              "letterSpacing": 0,
+              "maxWidth": 800
+            },
+            {
+              "id": "el-img-37",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                },
+                "fb-landscape": {
+                  "fy": 0.889
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-ad-the-streak",
+          "name": "Ad — The streak",
+          "background": {
+            "type": "color",
+            "color": "brand:bg"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-40",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "PRIDE",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-38",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.424,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.415
+                },
+                "story": {
+                  "fy": 0.435
+                }
+              },
+              "text": "A streak you'd be **ashamed** to break.",
+              "fontSize": 100,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.05,
+              "letterSpacing": -0.02,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-39",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.594,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.627
+                },
+                "story": {
+                  "fy": 0.554
+                }
+              },
+              "text": "Because this time, people can see it.",
+              "fontSize": 38,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.35,
+              "letterSpacing": 0,
+              "maxWidth": 780
+            },
+            {
+              "id": "el-img-41",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-ad-nobody-noticed",
+          "name": "Ad — Nobody noticed",
+          "background": {
+            "type": "gradient",
+            "gradient": "radial-gradient(circle at 85% 12%, rgba(112,91,207,0.45) 0%, transparent 55%), #12101a"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-44",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "RECOGNITION",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-42",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.405,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.391
+                },
+                "story": {
+                  "fy": 0.421
+                }
+              },
+              "text": "Three years. Same gym.\n**Nobody noticed.**",
+              "fontSize": 96,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.08,
+              "letterSpacing": -0.02,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-43",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.592,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.625
+                },
+                "story": {
+                  "fy": 0.553
+                }
+              },
+              "text": "Heda is where the work finally counts for something.",
+              "fontSize": 38,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.35,
+              "letterSpacing": 0,
+              "maxWidth": 800
+            },
+            {
+              "id": "el-img-45",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-ad-6am",
+          "name": "Ad — 6am",
+          "background": {
+            "type": "gradient",
+            "gradient": "linear-gradient(160deg, #0f0d17 0%, #241d38 100%)"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            },
+            {
+              "id": "fb-landscape",
+              "label": "FB / LinkedIn Link",
+              "w": 1200,
+              "h": 628,
+              "preset": "fb-landscape"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-48",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                },
+                "fb-landscape": {
+                  "fy": 0.139
+                }
+              },
+              "text": "ACCOUNTABILITY",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-46",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.405,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.391
+                },
+                "story": {
+                  "fy": 0.421
+                },
+                "fb-landscape": {
+                  "fy": 0.391
+                }
+              },
+              "text": "Someone **expects** you at 6am.",
+              "fontSize": 106,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.04,
+              "letterSpacing": -0.02,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-47",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.559,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.583
+                },
+                "story": {
+                  "fy": 0.529
+                },
+                "fb-landscape": {
+                  "fy": 0.583
+                }
+              },
+              "text": "That's the whole product. That's why it works.",
+              "fontSize": 38,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.35,
+              "letterSpacing": 0,
+              "maxWidth": 800
+            },
+            {
+              "id": "el-img-49",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                },
+                "fb-landscape": {
+                  "fy": 0.889
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-ad-known-for-your-grind",
+          "name": "Ad — Known for your grind",
+          "background": {
+            "type": "gradient",
+            "gradient": "radial-gradient(circle at 20% 25%, rgba(112,91,207,0.42) 0%, transparent 52%), radial-gradient(circle at 80% 78%, rgba(64,52,150,0.55) 0%, transparent 55%), radial-gradient(circle at 78% 18%, rgba(190,120,220,0.16) 0%, transparent 45%), #100e18"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-52",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "IDENTITY",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-50",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.405,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.391
+                },
+                "story": {
+                  "fy": 0.421
+                }
+              },
+              "text": "Be known for your **grind.**",
+              "fontSize": 108,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.04,
+              "letterSpacing": -0.02,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-51",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.56,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.585
+                },
+                "story": {
+                  "fy": 0.53
+                }
+              },
+              "text": "Profiles built on PRs and training days. Not selfies.",
+              "fontSize": 38,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.35,
+              "letterSpacing": 0,
+              "maxWidth": 800
+            },
+            {
+              "id": "el-img-53",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        }
+      ],
+      "brandKit": {
+        "id": "brand-default",
+        "name": "Heda",
+        "colors": {
+          "accent": "#705bcf",
+          "accentLight": "#8b7ad8",
+          "bg": "#13111a",
+          "text": "#e8e6f0",
+          "highlight": "#705bcf",
+          "palette": [
+            "#705bcf",
+            "#8b7ad8",
+            "#13111a",
+            "#e8e6f0",
+            "#0a0a12"
+          ]
+        },
+        "fonts": {
+          "display": "'Space Grotesk', sans-serif",
+          "body": "'DM Sans', sans-serif",
+          "mono": "'JetBrains Mono', monospace"
+        },
+        "logoAssetId": "asset-logo"
+      },
+      "assets": {}
+    },
+    {
+      "version": 1,
+      "kind": "heda-marketing-campaign",
+      "campaign": {
+        "id": "campaign-evergreen",
+        "name": "Evergreen — Stats & Quotes",
+        "brandKitId": "brand-default",
+        "designIds": [
+          "design-stat-80-quit",
+          "design-stat-95-accountability",
+          "design-quote-someone-waiting",
+          "design-quote-be-there-in-10",
+          "design-truth-the-invisible-quit"
+        ],
+        "createdAt": "2026-07-27T09:00:00.000Z",
+        "updatedAt": "2026-07-27T09:00:00.000Z"
+      },
+      "designs": [
+        {
+          "id": "design-stat-80-quit",
+          "name": "Stat — 80% quit",
+          "background": {
+            "type": "color",
+            "color": "brand:bg"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-57",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "THE NUMBER NOBODY POSTS",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-54",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.365,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.344
+                },
+                "story": {
+                  "fy": 0.39
+                }
+              },
+              "text": "**80%**",
+              "fontSize": 300,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1,
+              "letterSpacing": -0.05,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-55",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.526,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.545
+                },
+                "story": {
+                  "fy": 0.503
+                }
+              },
+              "text": "quit the gym by week three.",
+              "fontSize": 54,
+              "fontFamily": "display",
+              "fontWeight": 600,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.15,
+              "letterSpacing": -0.02,
+              "maxWidth": 820
+            },
+            {
+              "id": "el-t-56",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.611,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.651
+                },
+                "story": {
+                  "fy": 0.563
+                }
+              },
+              "text": "Not because the plan was wrong. Because nobody was waiting for them.",
+              "fontSize": 34,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.4,
+              "letterSpacing": 0,
+              "maxWidth": 800
+            },
+            {
+              "id": "el-img-58",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-stat-95-accountability",
+          "name": "Stat — 95% accountability",
+          "background": {
+            "type": "gradient",
+            "gradient": "linear-gradient(160deg, #0f0d17 0%, #241d38 100%)"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-62",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "WHAT ACTUALLY WORKS",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-59",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.346,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.32
+                },
+                "story": {
+                  "fy": 0.377
+                }
+              },
+              "text": "**95%**",
+              "fontSize": 300,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1,
+              "letterSpacing": -0.05,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-60",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.526,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.545
+                },
+                "story": {
+                  "fy": 0.503
+                }
+              },
+              "text": "higher success rate when someone is holding you to it.",
+              "fontSize": 48,
+              "fontFamily": "display",
+              "fontWeight": 600,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.18,
+              "letterSpacing": -0.02,
+              "maxWidth": 840
+            },
+            {
+              "id": "el-t-61",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.63,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.675
+                },
+                "story": {
+                  "fy": 0.576
+                }
+              },
+              "text": "You don't need a better split. You need a witness.",
+              "fontSize": 34,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.4,
+              "letterSpacing": 0,
+              "maxWidth": 800
+            },
+            {
+              "id": "el-img-63",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-quote-someone-waiting",
+          "name": "Quote — Someone waiting",
+          "background": {
+            "type": "gradient",
+            "gradient": "linear-gradient(145deg, #13111a 0%, #1c1826 100%)"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-65",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "HEDA",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-64",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.47,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.47
+                },
+                "story": {
+                  "fy": 0.47
+                }
+              },
+              "text": "You don't need more motivation.\nYou need someone **waiting** for you.",
+              "fontSize": 88,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.1,
+              "letterSpacing": -0.02,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-img-66",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-quote-be-there-in-10",
+          "name": "Quote — Be there in 10",
+          "background": {
+            "type": "color",
+            "color": "brand:bg"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-69",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "EVERY SINGLE TIME",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-67",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.432,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.422
+                },
+                "story": {
+                  "fy": 0.443
+                }
+              },
+              "text": "\"Be there in **10.**\"",
+              "fontSize": 120,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.05,
+              "letterSpacing": -0.02,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-68",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.58,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.607
+                },
+                "story": {
+                  "fy": 0.547
+                }
+              },
+              "text": "That was three hours ago.",
+              "fontSize": 44,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.35,
+              "letterSpacing": 0,
+              "maxWidth": 780
+            },
+            {
+              "id": "el-img-70",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-truth-the-invisible-quit",
+          "name": "Truth — The invisible quit",
+          "background": {
+            "type": "gradient",
+            "gradient": "radial-gradient(circle at 85% 12%, rgba(112,91,207,0.45) 0%, transparent 55%), #12101a"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-73",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "THE INVISIBLE QUIT",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-71",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.417,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.404
+                },
+                "story": {
+                  "fy": 0.433
+                }
+              },
+              "text": "Nobody notices the day you **stop.**",
+              "fontSize": 104,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.05,
+              "letterSpacing": -0.02,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-72",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.607,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.641
+                },
+                "story": {
+                  "fy": 0.566
+                }
+              },
+              "text": "No text. No 'where were you?'. Just a membership you keep paying for.",
+              "fontSize": 36,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.4,
+              "letterSpacing": 0,
+              "maxWidth": 820
+            },
+            {
+              "id": "el-img-74",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        }
+      ],
+      "brandKit": {
+        "id": "brand-default",
+        "name": "Heda",
+        "colors": {
+          "accent": "#705bcf",
+          "accentLight": "#8b7ad8",
+          "bg": "#13111a",
+          "text": "#e8e6f0",
+          "highlight": "#705bcf",
+          "palette": [
+            "#705bcf",
+            "#8b7ad8",
+            "#13111a",
+            "#e8e6f0",
+            "#0a0a12"
+          ]
+        },
+        "fonts": {
+          "display": "'Space Grotesk', sans-serif",
+          "body": "'DM Sans', sans-serif",
+          "mono": "'JetBrains Mono', monospace"
+        },
+        "logoAssetId": "asset-logo"
+      },
+      "assets": {}
+    },
+    {
+      "version": 1,
+      "kind": "heda-marketing-campaign",
+      "campaign": {
+        "id": "campaign-milestones",
+        "name": "Milestones",
+        "brandKitId": "brand-default",
+        "designIds": [
+          "design-milestone-big-number",
+          "design-milestone-streak",
+          "design-milestone-new-pr",
+          "design-milestone-welcome"
+        ],
+        "createdAt": "2026-07-27T09:00:00.000Z",
+        "updatedAt": "2026-07-27T09:00:00.000Z"
+      },
+      "designs": [
+        {
+          "id": "design-milestone-big-number",
+          "name": "Milestone — Big number",
+          "background": {
+            "type": "gradient",
+            "gradient": "linear-gradient(135deg, #2a2150 0%, #705bcf 100%)"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-79",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "MILESTONE",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "#ffffff",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-75",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.352,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.327
+                },
+                "story": {
+                  "fy": 0.381
+                }
+              },
+              "text": "1,000,000",
+              "fontSize": 170,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "#ffffff",
+              "align": "center",
+              "lineHeight": 1,
+              "letterSpacing": -0.04,
+              "maxWidth": 940
+            },
+            {
+              "id": "el-t-76",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.464,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.467
+                },
+                "story": {
+                  "fy": 0.46
+                }
+              },
+              "text": "steps",
+              "fontSize": 64,
+              "fontFamily": "display",
+              "fontWeight": 600,
+              "color": "#efeaff",
+              "align": "center",
+              "lineHeight": 1,
+              "letterSpacing": -0.02,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-rule-77",
+              "type": "shape",
+              "fx": 0.5,
+              "fy": 0.514,
+              "rotation": 0,
+              "opacity": 0.5,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.53
+                },
+                "story": {
+                  "fy": 0.495
+                }
+              },
+              "shape": "line",
+              "w": 120,
+              "h": 4,
+              "fill": "#ffffff",
+              "borderRadius": 0
+            },
+            {
+              "id": "el-t-78",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.576,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.607
+                },
+                "story": {
+                  "fy": 0.539
+                }
+              },
+              "text": "762 km on foot. 18 marathons back to back.\nOne person. One step at a time.",
+              "fontSize": 34,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "#efeaff",
+              "align": "center",
+              "lineHeight": 1.4,
+              "letterSpacing": 0,
+              "maxWidth": 820
+            },
+            {
+              "id": "el-img-80",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-milestone-streak",
+          "name": "Milestone — Streak",
+          "background": {
+            "type": "color",
+            "color": "brand:bg"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-84",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "STREAK",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-81",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.385,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.369
+                },
+                "story": {
+                  "fy": 0.404
+                }
+              },
+              "text": "**100**",
+              "fontSize": 300,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1,
+              "letterSpacing": -0.05,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-82",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.545,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.568
+                },
+                "story": {
+                  "fy": 0.516
+                }
+              },
+              "text": "days without missing.",
+              "fontSize": 54,
+              "fontFamily": "display",
+              "fontWeight": 600,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.15,
+              "letterSpacing": -0.02,
+              "maxWidth": 820
+            },
+            {
+              "id": "el-t-83",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.609,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.649
+                },
+                "story": {
+                  "fy": 0.562
+                }
+              },
+              "text": "Replace the number. Tag the member. Post it.",
+              "fontSize": 32,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.4,
+              "letterSpacing": 0,
+              "maxWidth": 780
+            },
+            {
+              "id": "el-img-85",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-milestone-new-pr",
+          "name": "Milestone — New PR",
+          "background": {
+            "type": "gradient",
+            "gradient": "linear-gradient(160deg, #0f0d17 0%, #241d38 100%)"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-89",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "NEW PR",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-86",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.395,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.379
+                },
+                "story": {
+                  "fy": 0.414
+                }
+              },
+              "text": "**140kg.**\nDeadlift.",
+              "fontSize": 128,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.05,
+              "letterSpacing": -0.035,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-rule-87",
+              "type": "shape",
+              "fx": 0.5,
+              "fy": 0.524,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.54
+                },
+                "story": {
+                  "fy": 0.505
+                }
+              },
+              "shape": "line",
+              "w": 120,
+              "h": 4,
+              "fill": "brand:accent",
+              "borderRadius": 0
+            },
+            {
+              "id": "el-t-88",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.589,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.621
+                },
+                "story": {
+                  "fy": 0.551
+                }
+              },
+              "text": "@member hit a new personal record this week.\nSomebody was there to see it.",
+              "fontSize": 34,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.4,
+              "letterSpacing": 0,
+              "maxWidth": 820
+            },
+            {
+              "id": "el-img-90",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        },
+        {
+          "id": "design-milestone-welcome",
+          "name": "Milestone — Welcome",
+          "background": {
+            "type": "gradient",
+            "gradient": "radial-gradient(circle at 20% 25%, rgba(112,91,207,0.42) 0%, transparent 52%), radial-gradient(circle at 80% 78%, rgba(64,52,150,0.55) 0%, transparent 55%), radial-gradient(circle at 78% 18%, rgba(190,120,220,0.16) 0%, transparent 45%), #100e18"
+          },
+          "sizes": [
+            {
+              "id": "ig-portrait",
+              "label": "Portrait 4:5",
+              "w": 1080,
+              "h": 1350,
+              "preset": "ig-portrait"
+            },
+            {
+              "id": "ig-square",
+              "label": "Square 1:1",
+              "w": 1080,
+              "h": 1080,
+              "preset": "ig-square"
+            },
+            {
+              "id": "story",
+              "label": "Story 9:16",
+              "w": 1080,
+              "h": 1920,
+              "preset": "story"
+            }
+          ],
+          "elements": [
+            {
+              "id": "el-t-93",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.111,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.139
+                },
+                "story": {
+                  "fy": 0.135
+                }
+              },
+              "text": "NEW ON HEDA",
+              "fontSize": 26,
+              "fontFamily": "mono",
+              "fontWeight": 700,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.2,
+              "letterSpacing": 0.2,
+              "maxWidth": 900
+            },
+            {
+              "id": "el-t-91",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.408,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.395
+                },
+                "story": {
+                  "fy": 0.423
+                }
+              },
+              "text": "**247** people found a partner this week.",
+              "fontSize": 96,
+              "fontFamily": "display",
+              "fontWeight": 800,
+              "color": "brand:text",
+              "align": "center",
+              "lineHeight": 1.06,
+              "letterSpacing": -0.02,
+              "maxWidth": 880
+            },
+            {
+              "id": "el-t-92",
+              "type": "text",
+              "fx": 0.5,
+              "fy": 0.588,
+              "rotation": 0,
+              "opacity": 1,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.62
+                },
+                "story": {
+                  "fy": 0.55
+                }
+              },
+              "text": "Your gym is filling up. Swap the number every Sunday.",
+              "fontSize": 36,
+              "fontFamily": "body",
+              "fontWeight": 500,
+              "color": "brand:accentLight",
+              "align": "center",
+              "lineHeight": 1.4,
+              "letterSpacing": 0,
+              "maxWidth": 800
+            },
+            {
+              "id": "el-img-94",
+              "type": "image",
+              "fx": 0.5,
+              "fy": 0.911,
+              "rotation": 0,
+              "opacity": 0.9,
+              "overrides": {
+                "ig-square": {
+                  "fy": 0.889
+                },
+                "story": {
+                  "fy": 0.849
+                }
+              },
+              "assetId": "asset-logo",
+              "w": 96,
+              "naturalRatio": 1,
+              "fit": "contain",
+              "borderRadius": 0,
+              "shadow": false
+            }
+          ]
+        }
+      ],
+      "brandKit": {
+        "id": "brand-default",
+        "name": "Heda",
+        "colors": {
+          "accent": "#705bcf",
+          "accentLight": "#8b7ad8",
+          "bg": "#13111a",
+          "text": "#e8e6f0",
+          "highlight": "#705bcf",
+          "palette": [
+            "#705bcf",
+            "#8b7ad8",
+            "#13111a",
+            "#e8e6f0",
+            "#0a0a12"
+          ]
+        },
+        "fonts": {
+          "display": "'Space Grotesk', sans-serif",
+          "body": "'DM Sans', sans-serif",
+          "mono": "'JetBrains Mono', monospace"
+        },
+        "logoAssetId": "asset-logo"
+      },
+      "assets": {}
+    }
+  ]
+}

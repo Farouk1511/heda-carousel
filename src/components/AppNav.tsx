@@ -1,11 +1,12 @@
 import React from "react";
 
-export type AppSection = "carousel" | "leaderboard" | "marketing";
+export type AppSection = "carousel" | "leaderboard" | "marketing" | "mockup";
 
 const SECTIONS: { id: AppSection; label: string }[] = [
   { id: "carousel", label: "Carousel" },
   { id: "leaderboard", label: "Leaderboard" },
   { id: "marketing", label: "Marketing" },
+  { id: "mockup", label: "Mockups" },
 ];
 
 interface AppNavProps {
