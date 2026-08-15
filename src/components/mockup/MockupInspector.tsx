@@ -18,6 +18,18 @@ import {
   planGifFrames,
   type GifProgress,
 } from "../../utils/gifExport";
+import {
+  VIDEO_FPS_OPTIONS,
+  VIDEO_MAX_DURATION_SEC,
+  VIDEO_MAX_EDGE_OPTIONS,
+  estimateBitrate,
+  exportMockupMp4,
+  isVideoExportSupported,
+  mp4OutputSize,
+  planMp4Frames,
+  type VideoProgress,
+} from "../../utils/videoExport";
+import type { VideoQuality } from "../../data/mockup/types";
 import { CalibrationPanel } from "./CalibrationPanel";
 
 interface Props {
@@ -33,7 +45,8 @@ export const MockupInspector: React.FC<Props> = ({
   overlay,
   onOverlayChange,
 }) => {
-  const { doc, activeItem, geometry, size } = state;
+  const { doc, activeItem, geometry, size, videoSettings } = state;
+  const mp4Supported = isVideoExportSupported();
   const frame = getFrame(doc.frameId);
   const [busy, setBusy] = useState<string | null>(null);
   const [progress, setProgress] = useState<string | null>(null);
@@ -133,11 +146,62 @@ export const MockupInspector: React.FC<Props> = ({
       downloadBlob(blob, `${slugify(activeItem.name)}.gif`);
     });
 
+  const doMp4 = () =>
+    run("mp4", async () => {
+      if (!activeItem || !mediaUrl) return;
+      const ctrl = new AbortController();
+      abortRef.current = ctrl;
+      const frameImg = await loadFrameImage(frame.src);
+      const blob = await exportMockupMp4(
+        {
+          videoUrl: mediaUrl,
+          frameImg,
+          frame,
+          geom: geometry,
+          scene: doc.scene,
+          transform: activeItem.transform,
+          outW: size.w,
+          outH: size.h,
+          maxEdge: videoSettings.maxEdge,
+          trim,
+          fps: videoSettings.fps,
+          quality: videoSettings.quality,
+        },
+        (p: VideoProgress) => {
+          if (p.phase === "encoding") {
+            setProgress(`Encoding frame ${p.frame}/${p.totalFrames}`);
+          } else {
+            setProgress(p.phase === "finalizing" ? "Finalizing…" : "Preparing…");
+          }
+        },
+        ctrl.signal
+      );
+      downloadBlob(blob, `${slugify(activeItem.name)}.mp4`);
+    });
+
   const plan =
     isVideo && duration
       ? planGifFrames(trim, doc.gif.fps, duration)
       : null;
   const gifSize = gifOutputSize(size.w, size.h, doc.gif.maxEdge);
+  const mp4Plan =
+    isVideo && duration
+      ? planMp4Frames(trim, videoSettings.fps, duration)
+      : null;
+  const mp4Size = mp4OutputSize(size.w, size.h, videoSettings.maxEdge);
+  const mp4Estimate =
+    mp4Plan && mp4Plan.times.length
+      ? (estimateBitrate(
+          mp4Size.w,
+          mp4Size.h,
+          videoSettings.fps,
+          videoSettings.quality
+        ) *
+          (mp4Plan.times.length / videoSettings.fps)) /
+        8 /
+        1024 /
+        1024
+      : 0;
 
   return (
     <div className="sidebar-right">
@@ -298,10 +362,84 @@ export const MockupInspector: React.FC<Props> = ({
           )}
           {doc.scene.background.type === "none" && (
             <p className="mo-warn">
-              GIF has only on/off transparency, which stair-steps around the
-              rounded phone — the export flattens onto white. PNG keeps real
-              transparency.
+              Neither GIF nor MP4 carries soft transparency, so those exports
+              flatten onto white. PNG keeps real transparency.
             </p>
+          )}
+
+          <div className="section-label" style={{ marginTop: 24 }}>
+            MP4
+          </div>
+          {!mp4Supported ? (
+            <p className="mo-warn">
+              This browser doesn't support WebCodecs, so MP4 export is
+              unavailable. Chrome, Edge, or Safari 16.4+ will work.
+            </p>
+          ) : (
+            <>
+              <div className="edit-field">
+                <span className="edit-label">FRAME RATE</span>
+                <div className="ratio-btns">
+                  {VIDEO_FPS_OPTIONS.map((f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      className={`ratio-btn${videoSettings.fps === f ? " active" : ""}`}
+                      onClick={() => state.patchVideo({ fps: f })}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="edit-field">
+                <span className="edit-label">MAX SIZE</span>
+                <div className="ratio-btns">
+                  {VIDEO_MAX_EDGE_OPTIONS.map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      className={`ratio-btn${videoSettings.maxEdge === m ? " active" : ""}`}
+                      onClick={() => state.patchVideo({ maxEdge: m })}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="edit-field">
+                <span className="edit-label">QUALITY</span>
+                <div className="ratio-btns">
+                  {(["small", "balanced", "high"] as VideoQuality[]).map((q) => (
+                    <button
+                      key={q}
+                      type="button"
+                      className={`ratio-btn${videoSettings.quality === q ? " active" : ""}`}
+                      onClick={() => state.patchVideo({ quality: q })}
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {mp4Plan && (
+                <p className="mo-hint mo-mono">
+                  {mp4Plan.times.length} frames · {mp4Size.w}×{mp4Size.h} · ~
+                  {mp4Estimate < 1
+                    ? `${Math.round(mp4Estimate * 1024)}KB`
+                    : `${mp4Estimate.toFixed(1)}MB`}
+                </p>
+              )}
+              <p className="mo-hint">
+                H.264 · no audio track · Instagram accepts MP4, not GIF.
+              </p>
+              {trim.endSec - trim.startSec > VIDEO_MAX_DURATION_SEC && (
+                <p className="mo-warn">
+                  MP4 is capped at {VIDEO_MAX_DURATION_SEC}s — only the first{" "}
+                  {VIDEO_MAX_DURATION_SEC}s will be used.
+                </p>
+              )}
+            </>
           )}
         </>
       )}
@@ -317,10 +455,20 @@ export const MockupInspector: React.FC<Props> = ({
       >
         {busy === "png" ? "Rendering…" : "↓ PNG"}
       </button>
-      {isVideo && (
+      {isVideo && mp4Supported && (
         <button
           type="button"
           className="export-btn-primary"
+          onClick={doMp4}
+          disabled={!mediaUrl || busy !== null}
+        >
+          {busy === "mp4" ? "Encoding…" : "↓ MP4"}
+        </button>
+      )}
+      {isVideo && (
+        <button
+          type="button"
+          className="export-btn-secondary"
           onClick={doGif}
           disabled={!mediaUrl || busy !== null}
         >

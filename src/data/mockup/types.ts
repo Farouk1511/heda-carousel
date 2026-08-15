@@ -102,6 +102,16 @@ export interface GifSettings {
   loop: boolean;
 }
 
+export type VideoQuality = "small" | "balanced" | "high";
+
+export interface VideoSettings {
+  /** Any fps works — MP4 has no centisecond quantisation like GIF does. */
+  fps: number;
+  /** Longest output edge, px. */
+  maxEdge: number;
+  quality: VideoQuality;
+}
+
 export interface MockupDoc {
   id: string;
   name: string;
@@ -115,4 +125,6 @@ export interface MockupDoc {
   items: MockupItem[];
   activeItemId: string | null;
   gif: GifSettings;
+  /** Optional: docs persisted before MP4 export existed won't have it. */
+  video?: VideoSettings;
 }

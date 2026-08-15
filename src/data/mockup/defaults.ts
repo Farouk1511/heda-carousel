@@ -6,6 +6,7 @@ import type {
   MockupMedia,
   MockupScene,
   ScreenTransform,
+  VideoSettings,
 } from "./types";
 
 let seq = 0;
@@ -40,6 +41,12 @@ export const DEFAULT_GIF_SETTINGS: GifSettings = {
   loop: true,
 };
 
+export const DEFAULT_VIDEO_SETTINGS: VideoSettings = {
+  fps: 30,
+  maxEdge: 1080,
+  quality: "balanced",
+};
+
 export function makeMockupItem(media: MockupMedia, name: string): MockupItem {
   return {
     id: newId("mi"),
@@ -63,5 +70,6 @@ export function makeMockupDoc(name = "Untitled mockups"): MockupDoc {
     items: [],
     activeItemId: null,
     gif: { ...DEFAULT_GIF_SETTINGS },
+    video: { ...DEFAULT_VIDEO_SETTINGS },
   };
 }

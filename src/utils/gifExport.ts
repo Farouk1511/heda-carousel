@@ -8,6 +8,15 @@ import type {
   VideoTrim,
 } from "../data/mockup/types";
 import { compositeMockup, makeCanvas } from "./mockupRender";
+import {
+  openVideoForExtraction,
+  planFrameTimes,
+  scaleToMaxEdge,
+  seekAndSettle,
+} from "./videoFrames";
+
+// Re-exported so existing callers keep importing frame helpers from here.
+export { openVideoForExtraction, seekAndSettle } from "./videoFrames";
 
 /**
  * Video -> GIF, entirely in the browser.
@@ -63,169 +72,33 @@ function aborted(signal?: AbortSignal): void {
   if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
 }
 
-/** Longest-edge cap with the aspect preserved; both dims forced even. */
 export function gifOutputSize(
   canvasW: number,
   canvasH: number,
   maxEdge: number
 ): { w: number; h: number } {
-  const k = Math.min(1, maxEdge / Math.max(canvasW, canvasH));
-  const even = (n: number) => Math.max(2, Math.round(n / 2) * 2);
-  return { w: even(canvasW * k), h: even(canvasH * k) };
+  return scaleToMaxEdge(canvasW, canvasH, maxEdge);
 }
 
-/**
- * The timestamps to sample. Each is nudged half a frame forward so we never
- * land exactly on a presentation-timestamp boundary, where the decoder may
- * legitimately return either the preceding or the following frame.
- */
+/** Frame timestamps plus the GIF-specific delay, using the shared planner. */
 export function planGifFrames(
   trim: VideoTrim,
   fps: number,
   videoDuration: number
 ): { times: number[]; delayCs: number; delayMs: number; clamped: boolean } {
-  const start = Math.max(0, trim.startSec);
-  const end = Math.min(
-    videoDuration || trim.endSec,
-    Math.max(start + 0.1, trim.endSec)
+  const plan = planFrameTimes(
+    trim,
+    fps,
+    videoDuration,
+    GIF_MAX_DURATION_SEC,
+    GIF_MAX_FRAMES
   );
-  const span = Math.min(end - start, GIF_MAX_DURATION_SEC);
-  const step = 1 / fps;
-  const raw = Math.floor(span / step);
-  const count = Math.max(1, Math.min(raw, GIF_MAX_FRAMES));
-  const times: number[] = [];
-  for (let i = 0; i < count; i++) {
-    times.push(Math.min(start + i * step + step / 2, Math.max(0, end - 1e-3)));
-  }
   return {
-    times,
+    times: plan.times,
     delayCs: gifDelayCs(fps),
     delayMs: gifDelayMs(fps),
-    clamped: raw > count || end - start > GIF_MAX_DURATION_SEC,
+    clamped: plan.clamped,
   };
-}
-
-export function openVideoForExtraction(url: string): Promise<HTMLVideoElement> {
-  return new Promise((resolve, reject) => {
-    const v = document.createElement("video");
-    v.preload = "auto";
-    v.muted = true;
-    v.playsInline = true;
-    v.crossOrigin = "anonymous";
-    const cleanup = () => {
-      v.onloadeddata = null;
-      v.onerror = null;
-      clearTimeout(timer);
-    };
-    const timer = setTimeout(() => {
-      cleanup();
-      reject(new Error("Video took too long to load."));
-    }, 20000);
-    v.onloadeddata = () => {
-      cleanup();
-      if (!v.videoWidth || !v.videoHeight) {
-        reject(
-          new Error(
-            "Your browser can't decode this video — re-export it as an H.264 MP4."
-          )
-        );
-        return;
-      }
-      resolve(v);
-    };
-    v.onerror = () => {
-      cleanup();
-      reject(
-        new Error(
-          "Your browser can't decode this video — re-export it as an H.264 MP4."
-        )
-      );
-    };
-    v.src = url;
-  });
-}
-
-/**
- * Seek, then wait until the decoded frame is actually presented.
- *
- * Chrome can fire `seeked` before the new frame has been composited into the
- * element, so a drawImage right after it paints the PREVIOUS frame — an
- * off-by-one GIF with a duplicated first frame. requestVideoFrameCallback fires
- * only on real presentation, so it's used as a confirmation signal. It isn't
- * contractually guaranteed to fire on a paused element (and Firefox doesn't
- * ship it at all), so it's raced against a few rAFs to avoid a deadlock.
- */
-export async function seekAndSettle(
-  video: HTMLVideoElement,
-  t: number
-): Promise<void> {
-  await new Promise<void>((resolve, reject) => {
-    const cleanup = () => {
-      video.removeEventListener("seeked", onSeeked);
-      video.removeEventListener("error", onError);
-      clearTimeout(timer);
-    };
-    const onSeeked = () => {
-      cleanup();
-      resolve();
-    };
-    const onError = () => {
-      cleanup();
-      reject(new Error("Seeking failed while reading the video."));
-    };
-    // Never let a stalled decoder hang the whole export.
-    const timer = setTimeout(() => {
-      cleanup();
-      resolve();
-    }, 4000);
-    video.addEventListener("seeked", onSeeked, { once: true });
-    video.addEventListener("error", onError, { once: true });
-    try {
-      video.currentTime = t;
-    } catch {
-      cleanup();
-      resolve();
-    }
-  });
-  await presentedFrame(video);
-}
-
-/** Hard backstop, ms. rAF and rVFC are both suspended in a hidden or
- *  backgrounded tab, so neither can be the only way out of this wait —
- *  without a timer the whole export deadlocks the moment the tab loses
- *  visibility. `seeked` has already fired by this point, so proceeding on the
- *  timer is safe; at worst we draw the frame a beat early. */
-const PRESENT_TIMEOUT_MS = 80;
-
-function presentedFrame(video: HTMLVideoElement): Promise<void> {
-  return new Promise<void>((resolve) => {
-    let done = false;
-    let rvfcId: number | undefined;
-    const finish = () => {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      if (rvfcId !== undefined) video.cancelVideoFrameCallback?.(rvfcId);
-      resolve();
-    };
-    const timer = setTimeout(finish, PRESENT_TIMEOUT_MS);
-
-    // rVFC fires only on real frame presentation, which is exactly the signal
-    // we want — Chrome can fire `seeked` before the frame is composited, and
-    // drawing then paints the PREVIOUS frame.
-    if (typeof video.requestVideoFrameCallback === "function") {
-      rvfcId = video.requestVideoFrameCallback(() => finish());
-    }
-    // Two rAFs is the fallback where rVFC is missing (Firefox ships none).
-    let ticks = 0;
-    const tick = () => {
-      if (done) return;
-      ticks += 1;
-      if (ticks >= 2) finish();
-      else requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  });
 }
 
 const yieldToUi = () => new Promise((r) => setTimeout(r, 0));

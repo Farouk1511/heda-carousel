@@ -6,8 +6,13 @@ import type {
   MockupItem,
   MockupScene,
   ScreenTransform,
+  VideoSettings,
 } from "../data/mockup/types";
-import { makeMockupDoc, makeMockupItem } from "../data/mockup/defaults";
+import {
+  DEFAULT_VIDEO_SETTINGS,
+  makeMockupDoc,
+  makeMockupItem,
+} from "../data/mockup/defaults";
 import { DEVICE_FRAMES, getFrame } from "../data/mockup/frames";
 import { SIZE_PRESETS } from "../data/marketing/sizes";
 import { deleteMedia, getMedia, putMedia } from "../utils/mediaStore";
@@ -33,6 +38,8 @@ export interface MockupState {
   /** Resolved geometry for the doc's frame (calibration overrides the seed). */
   geometry: FrameGeometry;
   size: { w: number; h: number };
+  /** Always resolved — docs persisted before MP4 export fall back to defaults. */
+  videoSettings: VideoSettings;
   importing: boolean;
   error: string | null;
 
@@ -45,6 +52,7 @@ export interface MockupState {
   patchTrim: (id: string, patch: { startSec?: number; endSec?: number }) => void;
   patchScene: (patch: Partial<MockupScene>) => void;
   patchGif: (patch: Partial<GifSettings>) => void;
+  patchVideo: (patch: Partial<VideoSettings>) => void;
   setSizeId: (id: string) => void;
   setFrameId: (id: string) => void;
   setGeometry: (geom: FrameGeometry) => void;
@@ -76,6 +84,23 @@ export function useMockupState(): MockupState {
   const [mediaUrls, setMediaUrls] = useState<Record<string, string>>({});
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  /** Flipped by every real mutation; gates the persist effect. */
+  const dirtyRef = useRef(false);
+  const mutateDocs = useCallback(
+    (updater: (ds: MockupDoc[]) => MockupDoc[]) => {
+      dirtyRef.current = true;
+      setDocs(updater);
+    },
+    []
+  );
+  const mutateCalibration = useCallback(
+    (updater: (c: Record<string, FrameGeometry>) => Record<string, FrameGeometry>) => {
+      dirtyRef.current = true;
+      setCalibration(updater);
+    },
+    []
+  );
 
   // Object URLs are owned here so they can be revoked deterministically on item
   // delete and on unmount — otherwise every re-import leaks a whole blob.
@@ -128,7 +153,14 @@ export function useMockupState(): MockupState {
   }, []);
 
   // Debounced persist of refs-only state (media bytes live in IndexedDB).
+  //
+  // Guarded by dirtyRef so a mount can never overwrite good saved state with
+  // the pristine empty doc. Without it, any mount that starts empty — a
+  // transient load failure, a Fast Refresh remount — silently destroys the
+  // saved docs 500ms later and orphans every blob they referenced in
+  // IndexedDB, with no way back.
   useEffect(() => {
+    if (!dirtyRef.current) return;
     const t = setTimeout(() => saveMockupState({ docs, calibration }), 500);
     return () => clearTimeout(t);
   }, [docs, calibration]);
@@ -139,9 +171,9 @@ export function useMockupState(): MockupState {
 
   const patchDoc = useCallback(
     (id: string, patch: (d: MockupDoc) => MockupDoc) => {
-      setDocs((ds) => ds.map((d) => (d.id === id ? patch(d) : d)));
+      mutateDocs((ds) => ds.map((d) => (d.id === id ? patch(d) : d)));
     },
-    []
+    [mutateDocs]
   );
 
   const patchActive = useCallback(
@@ -290,6 +322,15 @@ export function useMockupState(): MockupState {
     [patchActive]
   );
 
+  const patchVideo = useCallback(
+    (patch: Partial<VideoSettings>) =>
+      patchActive((d) => ({
+        ...d,
+        video: { ...DEFAULT_VIDEO_SETTINGS, ...d.video, ...patch },
+      })),
+    [patchActive]
+  );
+
   const setSizeId = useCallback(
     (id: string) => patchActive((d) => ({ ...d, sizeId: id })),
     [patchActive]
@@ -306,25 +347,25 @@ export function useMockupState(): MockupState {
 
   const setGeometry = useCallback(
     (geom: FrameGeometry) =>
-      setCalibration((c) => ({ ...c, [frameId]: geom })),
-    [frameId]
+      mutateCalibration((c) => ({ ...c, [frameId]: geom })),
+    [frameId, mutateCalibration]
   );
 
   const resetGeometry = useCallback(
     () =>
-      setCalibration((c) => {
+      mutateCalibration((c) => {
         const next = { ...c };
         delete next[frameId];
         return next;
       }),
-    [frameId]
+    [frameId, mutateCalibration]
   );
 
   const newDoc = useCallback(() => {
     const d = makeMockupDoc(`Mockups ${docs.length + 1}`);
-    setDocs((ds) => [...ds, d]);
+    mutateDocs((ds) => [...ds, d]);
     setActiveDocId(d.id);
-  }, [docs.length]);
+  }, [docs.length, mutateDocs]);
 
   const selectDoc = useCallback((id: string) => setActiveDocId(id), []);
 
@@ -335,14 +376,14 @@ export function useMockupState(): MockupState {
 
   const deleteDoc = useCallback(
     (id: string) => {
-      setDocs((ds) => {
+      mutateDocs((ds) => {
         const next = ds.filter((d) => d.id !== id);
         const safe = next.length ? next : [makeMockupDoc()];
         if (id === activeDocId) setActiveDocId(safe[0].id);
         return safe;
       });
     },
-    [activeDocId]
+    [activeDocId, mutateDocs]
   );
 
   const size = useMemo(() => {
@@ -363,6 +404,7 @@ export function useMockupState(): MockupState {
     mediaUrls,
     geometry,
     size,
+    videoSettings: { ...DEFAULT_VIDEO_SETTINGS, ...doc?.video },
     importing,
     error,
     addFiles,
@@ -374,6 +416,7 @@ export function useMockupState(): MockupState {
     patchTrim,
     patchScene,
     patchGif,
+    patchVideo,
     setSizeId,
     setFrameId,
     setGeometry,
