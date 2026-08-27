@@ -134,7 +134,9 @@ export const Card: React.FC<CardProps> = ({
     justifyContent: "space-between",
     position: "relative",
     overflow: "hidden",
-    border,
+    // Export is full-bleed (borderRadius 0), so this 1px outline would land on
+    // the outermost pixel row of the PNG as a hairline frame. Preview only.
+    border: width ? "none" : border,
     color: textColor,
     fontFamily: "'DM Sans', sans-serif",
     boxSizing: "border-box",

@@ -107,7 +107,9 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
     position: "relative",
     overflow: "hidden",
     background: t.bgCard,
-    border,
+    // Export is full-bleed (borderRadius 0), so this 1px outline would land on
+    // the outermost pixel row of the PNG as a hairline frame. Preview only.
+    border: width ? "none" : border,
     color: t.text,
     fontFamily: "'DM Sans', sans-serif",
     boxSizing: "border-box",

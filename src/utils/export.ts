@@ -33,7 +33,22 @@ export interface CaptureOptions {
   settleMs?: number;
   /** Optional readiness hook (e.g. await fonts + image decode) before capture. */
   waitFor?: (root: HTMLElement) => Promise<void>;
+  /** html-to-image pixelRatio (default 2). Use 1 when the node is already
+   *  mounted at the final pixel size — see CARD_SUPERSAMPLE. */
+  pixelRatio?: number;
 }
+
+/**
+ * Cards are mounted at 2x the target size and captured at pixelRatio 1.
+ *
+ * html-to-image's `pixelRatio` does NOT render at 2x: toSvg builds an SVG at the
+ * node's CSS size, then toCanvas drawImage()s that single raster into a larger
+ * canvas. The result is an upscale, which softens type and smears hairlines onto
+ * half-pixel boundaries. Real detail has to come from the DOM being bigger, and
+ * Card/LeaderboardCard derive every dimension from `s = width / 400`, so doubling
+ * width scales the whole card uniformly.
+ */
+const CARD_SUPERSAMPLE = 2;
 
 /**
  * Render an arbitrary React element offscreen at the given pixel size and
@@ -82,11 +97,10 @@ export async function captureNodeOffscreen(
     throw new Error("Card element not found in offscreen container");
   }
 
-  // pixelRatio 2 -> 2160-wide output; IG compression punishes thin type at 1080
   const dataUrl = await toPng(cardEl, {
     width: w,
     height: h,
-    pixelRatio: 2,
+    pixelRatio: opts?.pixelRatio ?? 2,
   });
 
   // Clean up
@@ -106,19 +120,22 @@ async function captureCardOffscreen(
   design?: CardDesign
 ): Promise<Blob> {
   const { w, h } = getExportDimensions(ratio);
+  const rw = w * CARD_SUPERSAMPLE;
+  const rh = h * CARD_SUPERSAMPLE;
   return captureNodeOffscreen(
     React.createElement(Card, {
       post,
       slideIndex,
       theme,
-      width: w,
-      height: h,
+      width: rw,
+      height: rh,
       logoSrc: "/LOGO.png",
       logoScale,
       design,
     }),
-    w,
-    h
+    rw,
+    rh,
+    { pixelRatio: 1 }
   );
 }
 
@@ -132,12 +149,14 @@ async function captureLeaderboardOffscreen(
   pageIndex: number
 ): Promise<Blob> {
   const { w, h } = getExportDimensions(ratio);
+  const rw = w * CARD_SUPERSAMPLE;
+  const rh = h * CARD_SUPERSAMPLE;
   return captureNodeOffscreen(
     React.createElement(LeaderboardCard, {
       data,
       theme,
-      width: w,
-      height: h,
+      width: rw,
+      height: rh,
       aspectRatio: ratio,
       logoSrc: "/LOGO.png",
       logoScale,
@@ -145,8 +164,9 @@ async function captureLeaderboardOffscreen(
       avatars,
       pageIndex,
     }),
-    w,
-    h
+    rw,
+    rh,
+    { pixelRatio: 1 }
   );
 }
 

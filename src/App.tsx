@@ -7,6 +7,7 @@ import { CarouselView } from "./components/CarouselView";
 import { LeaderboardView } from "./components/LeaderboardView";
 import { MarketingView } from "./components/marketing/MarketingView";
 import { MockupView } from "./components/mockup/MockupView";
+import { LinksSection } from "./components/links/LinksView";
 import "./App.css";
 
 const SECTION_KEY = "heda.app.section";
@@ -17,7 +18,8 @@ function loadSection(): AppSection {
     saved === "carousel" ||
     saved === "leaderboard" ||
     saved === "marketing" ||
-    saved === "mockup"
+    saved === "mockup" ||
+    saved === "links"
   ) {
     return saved;
   }
@@ -41,6 +43,7 @@ function App() {
       {section === "leaderboard" && <LeaderboardView />}
       {section === "marketing" && <MarketingView state={marketing} />}
       {section === "mockup" && <MockupView state={mockup} />}
+      {section === "links" && <LinksSection />}
     </div>
   );
 }
