@@ -12,7 +12,8 @@
     "render:all": "npx tsx render.ts --all",
     "render:text-reel": "npx tsx render.ts --composition=TextReelVideo",
     "render:text-reel:example": "npx tsx render.ts --composition=TextReelVideo --reel-id=heda-community-reel",
-    "render:bump-chart": "npx tsx render.ts --composition=BumpChartVideo"
+    "render:bump-chart": "npx tsx render.ts --composition=BumpChartVideo",
+    "assets:sync": "node scripts/sync-assets.mjs"
   },
   "dependencies": {
     "@remotion/bundler": "^4.0.242",
@@ -32,6 +33,7 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "sharp": "^0.35.4",
     "tsx": "^4.19.0",
     "typescript": "~5.6.2",
     "vite": "^6.0.0"

@@ -1,6 +1,7 @@
 import React from "react";
 import type { ThemeName } from "../data/themes";
-import { THEMES } from "../data/themes";
+import { legacyDesign, tint, type CardDesign } from "../data/design/resolve";
+import { CardBackground } from "./card/CardBackground";
 import type { AspectRatio } from "../hooks/useCarouselState";
 import type { LeaderboardData, LeaderboardEntry } from "../data/leaderboard/types";
 import { formatSteps } from "../data/leaderboard/parse";
@@ -31,6 +32,8 @@ interface LeaderboardCardProps {
   cta?: string;
   pageIndex?: number;
   avatars?: AvatarMap;
+  /** Resolved design tokens; omitted -> legacy visuals for the given theme */
+  design?: CardDesign;
 }
 
 export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
@@ -45,8 +48,11 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
   cta,
   pageIndex = 0,
   avatars = {},
+  design,
 }) => {
-  const t = THEMES[theme];
+  const d = design ?? legacyDesign(theme);
+  // On light cards the soft accent tone is too faint for numbers and ranks.
+  const accentText = d.mode === "light" ? d.hlColor : d.accentLight;
   // Same scale factor as Card.tsx so on-screen (max 400px) and export (1080px)
   // render identically.
   const s = width ? width / 400 : 1;
@@ -90,10 +96,7 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
   const rowStepSize = (dense ? 14 : 15.5) * s;
   const avatarSize = (dense ? 26 : 30) * s;
 
-  const border =
-    theme === "deep"
-      ? "1px solid rgba(112,91,207,0.2)"
-      : "1px solid rgba(112,91,207,0.15)";
+  const border = d.border;
 
   const cardStyle: React.CSSProperties = {
     width: width ?? "100%",
@@ -106,24 +109,13 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
     flexDirection: "column",
     position: "relative",
     overflow: "hidden",
-    background: t.bgCard,
+    background: d.background,
     // Export is full-bleed (borderRadius 0), so this 1px outline would land on
     // the outermost pixel row of the PNG as a hairline frame. Preview only.
     border: width ? "none" : border,
-    color: t.text,
+    color: d.textColor,
     fontFamily: "'DM Sans', sans-serif",
     boxSizing: "border-box",
-  };
-
-  const orbStyle: React.CSSProperties = {
-    position: "absolute",
-    top: -40 * s,
-    right: -40 * s,
-    width: 140 * s,
-    height: 140 * s,
-    borderRadius: "50%",
-    pointerEvents: "none",
-    background: t.orbGradient,
   };
 
   // Circular avatar (data URL) or an initials chip when no/failed image.
@@ -160,9 +152,9 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "rgba(112,91,207,0.18)",
-          border: "1px solid rgba(112,91,207,0.28)",
-          color: t.accentLight,
+          background: tint(d, 0.18),
+          border: `1px solid ${tint(d, 0.28)}`,
+          color: accentText,
           fontSize,
           fontWeight: 700,
           fontFamily: "'Space Grotesk', sans-serif",
@@ -188,6 +180,8 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
         pointerEvents: "none",
         zIndex: 3,
         opacity: 0.9,
+        // Light cards: flip the white logo wings to ink (same as Card.tsx)
+        filter: d.logoChip ? "invert(1) hue-rotate(180deg)" : undefined,
       }}
     />
   );
@@ -207,7 +201,7 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
             fontSize: 11 * s,
             letterSpacing: "0.18em",
             fontWeight: 600,
-            color: t.accent,
+            color: d.hlColor,
             fontFamily: "'JetBrains Mono', monospace",
           }}
         >
@@ -219,11 +213,12 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
               fontSize: 9 * s,
               letterSpacing: "0.1em",
               fontWeight: 600,
-              color: t.accentLight,
+              color: d.chip.text,
               fontFamily: "'JetBrains Mono', monospace",
               padding: `${2 * s}px ${7 * s}px`,
               borderRadius: 20 * s,
-              border: "1px solid rgba(112,91,207,0.3)",
+              background: d.chip.bg,
+              border: d.chip.border,
             }}
           >
             PART {page.pageIndex + 1}/{page.pageCount}
@@ -235,7 +230,7 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
           fontSize: weekLabelSize * s,
           fontWeight: 800,
           lineHeight: 1.1,
-          color: t.textHeadline,
+          color: d.headlineColor,
           fontFamily: "'Space Grotesk', sans-serif",
         }}
       >
@@ -250,13 +245,13 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
         display: "flex",
         alignItems: "center",
         gap: 14 * s,
-        background: t.bgCardCta,
+        background: d.backgroundCTA,
         borderRadius: 14 * s,
         padding: `${spotPadV}px ${spotPadH}px`,
         boxShadow:
-          theme === "deep"
-            ? "0 14px 30px rgba(0,0,0,0.35)"
-            : "0 16px 34px rgba(112,91,207,0.28)",
+          d.mode === "light"
+            ? `0 16px 34px ${tint(d, 0.28)}`
+            : "0 14px 30px rgba(0,0,0,0.35)",
         position: "relative",
         zIndex: 2,
       }}
@@ -393,7 +388,7 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
                 textAlign: "right",
                 fontSize: 12 * s,
                 fontWeight: 600,
-                color: t.accentLight,
+                color: accentText,
                 fontFamily: "'JetBrains Mono', monospace",
               }}
             >
@@ -414,7 +409,7 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
                   style={{
                     fontSize: rowNameSize,
                     fontWeight: 600,
-                    color: t.textHeadline,
+                    color: d.headlineColor,
                     fontFamily: "'Space Grotesk', sans-serif",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
@@ -427,7 +422,7 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
                   style={{
                     fontSize: rowStepSize,
                     fontWeight: 600,
-                    color: t.accentLight,
+                    color: accentText,
                     fontFamily: "'Space Grotesk', sans-serif",
                     flexShrink: 0,
                   }}
@@ -439,7 +434,7 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
                 style={{
                   height: 5 * s,
                   borderRadius: 3 * s,
-                  background: "rgba(112,91,207,0.12)",
+                  background: tint(d, 0.12),
                   overflow: "hidden",
                 }}
               >
@@ -448,8 +443,7 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
                     height: "100%",
                     width: `${pct}%`,
                     borderRadius: 3 * s,
-                    background:
-                      "linear-gradient(90deg, #705bcf 0%, #8b7ad8 100%)",
+                    background: `linear-gradient(90deg, ${d.hlColor} 0%, ${d.accentLight} 100%)`,
                   }}
                 />
               </div>
@@ -487,7 +481,7 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
           style={{
             fontSize: 13 * s,
             fontWeight: 700,
-            color: t.accentLight,
+            color: accentText,
             fontFamily: "'DM Sans', sans-serif",
           }}
         >
@@ -500,7 +494,7 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({
   return (
     <div style={cardStyle} className={className}>
       {logo}
-      <div style={orbStyle} />
+      <CardBackground design={d} isCTA={false} s={s} showOrb boostOrb />
       {header}
       <div
         style={{

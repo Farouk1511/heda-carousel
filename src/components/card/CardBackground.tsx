@@ -1,6 +1,7 @@
 import React from "react";
 import type { CardDesign } from "../../data/design/resolve";
-import { DOT_GRID_SIZE, dotGridBackground, GRAIN_DATA_URI } from "../../data/design/textures";
+import { GRAIN_DATA_URI } from "../../data/design/textures";
+import { PatternLayer } from "./PatternLayer";
 
 interface CardBackgroundProps {
   design: CardDesign;
@@ -31,8 +32,7 @@ export const CardBackground: React.FC<CardBackgroundProps> = ({
 }) => {
   const orbSize = (boostOrb ? 190 : 120) * s;
   const orbOffset = (boostOrb ? -56 : -40) * s;
-  const dotColor =
-    d.mode === "light" ? "rgba(90,69,176,0.12)" : "rgba(112,91,207,0.14)";
+  const light = d.mode === "light";
   return (
     <div style={{ ...layerBase, zIndex: 0, overflow: "hidden" }}>
       <div
@@ -42,13 +42,12 @@ export const CardBackground: React.FC<CardBackgroundProps> = ({
           filter: d.hueShiftDeg ? `hue-rotate(${d.hueShiftDeg}deg)` : undefined,
         }}
       />
-      {d.texture.dotGrid && !isCTA && (
-        <div
-          style={{
-            ...layerBase,
-            backgroundImage: dotGridBackground(dotColor),
-            backgroundSize: DOT_GRID_SIZE,
-          }}
+      {!isCTA && (
+        <PatternLayer
+          pattern={d.pattern}
+          rgb={d.whiteAccents ? "255,255,255" : d.accentRgb}
+          light={light}
+          s={s}
         />
       )}
       {showOrb && (
@@ -76,6 +75,16 @@ export const CardBackground: React.FC<CardBackgroundProps> = ({
             borderRadius: "50%",
             pointerEvents: "none",
             background: d.orbSecondary,
+          }}
+        />
+      )}
+      {d.texture.vignette && (
+        <div
+          style={{
+            ...layerBase,
+            background: light
+              ? `radial-gradient(ellipse at center, transparent 50%, rgba(${d.accentRgb},0.16) 100%)`
+              : "radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.42) 100%)",
           }}
         />
       )}

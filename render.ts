@@ -7,7 +7,13 @@ import { createReelFromPost, getReelById } from "./src/remotion/textReel/example
 import { SAMPLE_LEADERBOARD } from "./src/data/leaderboard/sample";
 import { parseLeaderboard, weekSlug } from "./src/data/leaderboard/parse";
 import { validateDailySteps } from "./src/data/leaderboard/daily";
-import { resolveBumpConfig, type BumpPacing, type BumpReelConfig } from "./src/remotion/bumpChart/config";
+import {
+  bumpReelFileName,
+  resolveBumpConfig,
+  type BumpFormat,
+  type BumpPacing,
+  type BumpReelConfig,
+} from "./src/remotion/bumpChart/config";
 import type { LeaderboardData } from "./src/data/leaderboard/types";
 import { prefetchAvatars } from "./src/data/leaderboard/avatarsNode";
 
@@ -178,6 +184,8 @@ async function main() {
     if (themeArg) fileConfig.theme = theme;
     const pacingArg = getArg(args, "--pacing");
     if (pacingArg) fileConfig.pacing = pacingArg as BumpPacing;
+    const formatArg = getArg(args, "--format");
+    if (formatArg) fileConfig.format = formatArg as BumpFormat;
     const config = resolveBumpConfig(fileConfig);
 
     const validation = validateDailySteps(data);
@@ -202,10 +210,7 @@ async function main() {
     if (!fs.existsSync(outDir)) {
       fs.mkdirSync(outDir, { recursive: true });
     }
-    const outputLocation = path.join(
-      outDir,
-      `heda_bumpchart_${weekSlug(data)}_${config.theme}.mp4`
-    );
+    const outputLocation = path.join(outDir, bumpReelFileName(weekSlug(data), config));
 
     console.log(`\nRendering bump chart reel: "${data.week.label}"...`);
 

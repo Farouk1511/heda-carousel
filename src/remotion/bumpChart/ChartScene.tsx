@@ -10,9 +10,17 @@ import {
 import type { AvatarMap } from "../../data/leaderboard/avatars";
 import type { ThemeTokens } from "../../data/themes";
 import { AvatarNode } from "./AvatarNode";
-import { BUMP_COLORS, BUMP_HEIGHT, BUMP_WIDTH, PLOT_BOTTOM, PLOT_LEFT, PLOT_RIGHT, PLOT_TOP } from "./constants";
+import { getBumpGeometry, getBumpPalette, LINE_WIDTH } from "./constants";
 import type { BumpReelConfig } from "./config";
-import { cumulativeAt, dayProgress, dayX, linePoints, positionAt, rowY } from "./layout";
+import {
+  cumulativeAt,
+  dayProgress,
+  dayX,
+  linePoints,
+  positionAt,
+  rowY,
+  type LineShape,
+} from "./layout";
 import type { BumpChartModel } from "./model";
 import type { BumpTimeline } from "./timing";
 
@@ -27,7 +35,7 @@ interface ChartSceneProps {
 /**
  * The bump chart itself, plus the persistent header/footer. Mounted in a
  * <Sequence> right after the intro and kept alive through the outro, which
- * overlays it — during the outro every non-highlighted line dims down.
+ * overlays it — during the outro everyone outside `config.focus` dims down.
  */
 export const ChartScene: React.FC<ChartSceneProps> = ({
   model,
@@ -39,26 +47,40 @@ export const ChartScene: React.FC<ChartSceneProps> = ({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const { dayCount, rowCount, people } = model;
+  const g = getBumpGeometry(config);
+  const colors = getBumpPalette(config.palette);
+  const shape: LineShape = {
+    geometry: g,
+    rowCount,
+    dayCount,
+    curved: config.lineStyle === "curved",
+  };
+  const strokeWidth = LINE_WIDTH[config.lineWeight];
 
   const p = dayProgress(frame, dayCount, tl);
   const completedDays = Math.floor(p);
   const activeDay = Math.round(p);
 
   // 1 during the chart, easing to 0 as the outro takes over.
-  const outroDim = config.showOutro
+  const outroFade = config.showOutro
     ? interpolate(frame, [tl.holdEnd, tl.holdEnd + 20], [1, 0], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
       })
     : 1;
+  // Axes and gutters fade too, just never below 30%.
+  const axisDim = Math.max(outroFade, 0.3);
+  // "all" keeps every line lit under the outro.
+  const lineDim = config.focus === "all" ? 1 : outroFade;
 
   const personOpacity = (personIndex: number): number => {
     const person = people[personIndex];
-    const isWinner = person === model.winner;
-    const isClimber = person === model.biggestClimber;
-    if (isWinner) return 1;
+    const inFocus =
+      config.focus === "podium" ? person.finalRank <= 3 : person === model.winner;
+    if (inFocus) return 1;
+    const isClimber = config.showClimber && person === model.biggestClimber;
     const dimmed = isClimber ? 0.5 : 0.12;
-    return dimmed + (1 - dimmed) * outroDim;
+    return dimmed + (1 - dimmed) * lineDim;
   };
 
   const headerIn = interpolate(frame, [0, 15], [0, 1], {
@@ -74,25 +96,37 @@ export const ChartScene: React.FC<ChartSceneProps> = ({
       easing: Easing.out(Easing.quad),
     });
 
+  const logoSize = (g.titleSize + 22) * config.logoScale;
+
   return (
-    <div style={{ position: "absolute", inset: 0 }}>
+    // zIndex 0 = own stacking context, so the riders' zIndex can't climb
+    // above the outro card that overlays this scene.
+    <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
       {/* Header */}
-      <div style={{ position: "absolute", left: 64, top: 96, right: 64, opacity: headerIn }}>
+      <div
+        style={{
+          position: "absolute",
+          left: 64,
+          top: g.headerTop,
+          right: 64 + logoSize + 24,
+          opacity: headerIn,
+        }}
+      >
         <div
           style={{
-            fontSize: 26,
+            fontSize: Math.round(g.subSize * 0.76),
             letterSpacing: "0.18em",
             fontWeight: 600,
             color: theme.accent,
             fontFamily: "'JetBrains Mono', monospace",
-            marginBottom: 18,
+            marginBottom: Math.round(g.subSize * 0.5),
           }}
         >
           WEEKLY LEADERBOARD · TOP {rowCount}
         </div>
         <div
           style={{
-            fontSize: 66,
+            fontSize: g.titleSize,
             fontWeight: 800,
             lineHeight: 1.05,
             color: theme.textHeadline,
@@ -103,9 +137,9 @@ export const ChartScene: React.FC<ChartSceneProps> = ({
         </div>
         <div
           style={{
-            fontSize: 34,
+            fontSize: g.subSize,
             fontWeight: 500,
-            marginTop: 14,
+            marginTop: Math.round(g.subSize * 0.4),
             color: theme.text,
             opacity: theme.textSub,
             fontFamily: "'DM Sans', sans-serif",
@@ -119,10 +153,10 @@ export const ChartScene: React.FC<ChartSceneProps> = ({
         alt="Heda"
         style={{
           position: "absolute",
-          top: 88,
+          top: g.headerTop - 8,
           right: 64,
-          width: 88 * config.logoScale,
-          height: 88 * config.logoScale,
+          width: logoSize,
+          height: logoSize,
           objectFit: "contain",
           opacity: 0.9 * headerIn,
         }}
@@ -130,7 +164,7 @@ export const ChartScene: React.FC<ChartSceneProps> = ({
 
       {/* Axes: rank gutter, row guides, day columns + labels */}
       {Array.from({ length: rowCount }, (_, i) => {
-        const y = rowY(i + 1, rowCount);
+        const y = rowY(i + 1, rowCount, g);
         const reveal = axisIn(i);
         return (
           <React.Fragment key={`row-${i}`}>
@@ -139,13 +173,13 @@ export const ChartScene: React.FC<ChartSceneProps> = ({
                 position: "absolute",
                 left: 0,
                 top: y - 16,
-                width: PLOT_LEFT - 34,
+                width: g.plotLeft - 34,
                 textAlign: "right",
                 fontSize: 26,
                 fontWeight: 600,
                 color: theme.accentLight,
                 fontFamily: "'JetBrains Mono', monospace",
-                opacity: 0.7 * reveal * Math.max(outroDim, 0.3),
+                opacity: 0.7 * reveal * axisDim,
               }}
             >
               {i + 1}
@@ -153,19 +187,19 @@ export const ChartScene: React.FC<ChartSceneProps> = ({
             <div
               style={{
                 position: "absolute",
-                left: PLOT_LEFT - 16,
+                left: g.plotLeft - 16,
                 top: y,
-                width: PLOT_RIGHT - PLOT_LEFT + 32,
+                width: g.plotRight - g.plotLeft + 32,
                 height: 1.5,
                 background: "rgba(112,91,207,0.12)",
-                opacity: reveal * Math.max(outroDim, 0.3),
+                opacity: reveal * axisDim,
               }}
             />
           </React.Fragment>
         );
       })}
       {model.dayLabels.map((label, d) => {
-        const x = dayX(d, dayCount);
+        const x = dayX(d, dayCount, g);
         const isActive = d === activeDay && frame >= tl.placeStart;
         const reveal = axisIn(d + 3);
         return (
@@ -174,25 +208,25 @@ export const ChartScene: React.FC<ChartSceneProps> = ({
               style={{
                 position: "absolute",
                 left: x,
-                top: PLOT_TOP - 12,
+                top: g.plotTop - 12,
                 width: 1,
-                height: PLOT_BOTTOM - PLOT_TOP + 24,
+                height: g.plotBottom - g.plotTop + 24,
                 background: "rgba(232,230,240,0.05)",
-                opacity: reveal * Math.max(outroDim, 0.3),
+                opacity: reveal * axisDim,
               }}
             />
             <span
               style={{
                 position: "absolute",
                 left: x - 60,
-                top: PLOT_TOP - 60,
+                top: g.plotTop - 60,
                 width: 120,
                 textAlign: "center",
                 fontSize: 22,
                 fontWeight: 600,
                 letterSpacing: "0.06em",
                 color: isActive ? theme.accentLight : theme.text,
-                opacity: (isActive ? 1 : 0.45) * reveal * Math.max(outroDim, 0.3),
+                opacity: (isActive ? 1 : 0.45) * reveal * axisDim,
                 fontFamily: "'JetBrains Mono', monospace",
               }}
             >
@@ -204,30 +238,32 @@ export const ChartScene: React.FC<ChartSceneProps> = ({
 
       {/* Lines */}
       <svg
-        viewBox={`0 0 ${BUMP_WIDTH} ${BUMP_HEIGHT}`}
+        viewBox={`0 0 ${g.width} ${g.height}`}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
       >
         {people.map((person, i) => {
-          const points = linePoints(person, p, rowCount, dayCount);
-          const color = BUMP_COLORS[person.colorIndex];
+          const points = linePoints(person, p, shape);
+          const color = colors[person.colorIndex];
           const opacity = personOpacity(i);
           if (!points.includes(" ")) return null;
           return (
             <g key={person.key}>
+              {config.glow && (
+                <polyline
+                  points={points}
+                  fill="none"
+                  stroke={color}
+                  strokeWidth={strokeWidth * 2.5}
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  opacity={0.16 * opacity}
+                />
+              )}
               <polyline
                 points={points}
                 fill="none"
                 stroke={color}
-                strokeWidth={16}
-                strokeLinejoin="round"
-                strokeLinecap="round"
-                opacity={0.16 * opacity}
-              />
-              <polyline
-                points={points}
-                fill="none"
-                stroke={color}
-                strokeWidth={6.5}
+                strokeWidth={strokeWidth}
                 strokeLinejoin="round"
                 strokeLinecap="round"
                 opacity={opacity}
@@ -235,9 +271,9 @@ export const ChartScene: React.FC<ChartSceneProps> = ({
               {Array.from({ length: completedDays + 1 }, (_, d) => (
                 <circle
                   key={d}
-                  cx={dayX(d, dayCount)}
-                  cy={rowY(person.days[d].rank, rowCount)}
-                  r={6}
+                  cx={dayX(d, dayCount, g)}
+                  cy={rowY(person.days[d].rank, rowCount, g)}
+                  r={Math.max(strokeWidth * 0.95, 4)}
                   fill={color}
                   opacity={opacity}
                 />
@@ -265,7 +301,7 @@ export const ChartScene: React.FC<ChartSceneProps> = ({
             person.days[Math.min(Math.floor(p) + 1, dayCount - 1)].rank;
         const pop = rankChanging ? Math.sin(frac * Math.PI) * 0.12 : 0;
 
-        const pos = positionAt(person, p, rowCount, dayCount);
+        const pos = positionAt(person, p, shape);
         const countIn = interpolate(
           frame,
           [tl.placeStart + i * 2, tl.segmentsStart],
@@ -287,9 +323,11 @@ export const ChartScene: React.FC<ChartSceneProps> = ({
             name={person.name}
             imageUrl={person.imageUrl}
             avatars={avatars}
-            color={BUMP_COLORS[person.colorIndex]}
+            color={colors[person.colorIndex]}
             x={pos.x}
             y={pos.y}
+            size={g.avatarSize}
+            labels={config.labels}
             stepValue={stepValue}
             scale={placeScale * (1 + pop)}
             opacity={personOpacity(i)}
@@ -303,7 +341,7 @@ export const ChartScene: React.FC<ChartSceneProps> = ({
         style={{
           position: "absolute",
           left: 64,
-          bottom: 56,
+          bottom: g.footerBottom,
           fontSize: 26,
           fontWeight: 600,
           letterSpacing: "0.05em",

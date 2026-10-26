@@ -146,6 +146,7 @@ async function captureLeaderboardOffscreen(
   logoScale: number,
   cta: string,
   avatars: AvatarMap,
+  design: CardDesign | undefined,
   pageIndex: number
 ): Promise<Blob> {
   const { w, h } = getExportDimensions(ratio);
@@ -163,6 +164,7 @@ async function captureLeaderboardOffscreen(
       cta,
       avatars,
       pageIndex,
+      design,
     }),
     rw,
     rh,
@@ -309,6 +311,7 @@ export async function exportLeaderboardImage(
   logoScale: number,
   cta: string,
   avatars: AvatarMap,
+  design: CardDesign | undefined,
   setProgress: (msg: string) => void
 ) {
   const slug = weekSlug(data);
@@ -317,7 +320,7 @@ export async function exportLeaderboardImage(
   setProgress("Rendering...");
   try {
     if (pages.length === 1) {
-      const blob = await captureLeaderboardOffscreen(data, theme, ratio, logoScale, cta, avatars, 0);
+      const blob = await captureLeaderboardOffscreen(data, theme, ratio, logoScale, cta, avatars, design, 0);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -330,7 +333,7 @@ export async function exportLeaderboardImage(
       const zip = new JSZip();
       for (let i = 0; i < pages.length; i++) {
         setProgress(`Rendering part ${i + 1}/${pages.length}...`);
-        const blob = await captureLeaderboardOffscreen(data, theme, ratio, logoScale, cta, avatars, i);
+        const blob = await captureLeaderboardOffscreen(data, theme, ratio, logoScale, cta, avatars, design, i);
         zip.file(`heda_leaderboard_${slug}_${ratioTag}${pageSuffix(i, pages.length)}.png`, blob);
       }
       setProgress("Zipping...");
@@ -356,6 +359,7 @@ export async function exportLeaderboardRatios(
   logoScale: number,
   cta: string,
   avatars: AvatarMap,
+  design: CardDesign | undefined,
   setProgress: (msg: string) => void
 ) {
   const zip = new JSZip();
@@ -367,7 +371,7 @@ export async function exportLeaderboardRatios(
       const pages = paginateLeaderboard(data.leaderboard, ratio);
       for (let i = 0; i < pages.length; i++) {
         setProgress(`Rendering ${ratio}${pages.length > 1 ? ` part ${i + 1}/${pages.length}` : ""}...`);
-        const blob = await captureLeaderboardOffscreen(data, theme, ratio, logoScale, cta, avatars, i);
+        const blob = await captureLeaderboardOffscreen(data, theme, ratio, logoScale, cta, avatars, design, i);
         zip.file(`heda_leaderboard_${slug}_${ratioTag}${pageSuffix(i, pages.length)}.png`, blob);
         count++;
       }

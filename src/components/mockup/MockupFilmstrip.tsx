@@ -1,6 +1,8 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import type { MockupItem } from "../../data/mockup/types";
 import { ACCEPT_ATTR } from "../../utils/mediaIngest";
+import { LibraryPicker } from "../LibraryPicker";
+import { libraryAssetToFile } from "../../data/library";
 
 interface FilmstripProps {
   items: MockupItem[];
@@ -24,6 +26,7 @@ export const MockupFilmstrip: React.FC<FilmstripProps> = ({
   importing,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [libraryOpen, setLibraryOpen] = useState(false);
 
   return (
     <div className="mo-filmstrip">
@@ -95,6 +98,25 @@ export const MockupFilmstrip: React.FC<FilmstripProps> = ({
       >
         {importing ? "…" : "+"}
       </button>
+      <button
+        type="button"
+        className="mo-thumb mo-thumb-add mo-thumb-lib"
+        title="Add from asset library"
+        onClick={() => setLibraryOpen(true)}
+        disabled={importing}
+      >
+        Library
+      </button>
+      {libraryOpen && (
+        <LibraryPicker
+          initialCategory="app-screens"
+          onClose={() => setLibraryOpen(false)}
+          onPick={async (asset) => {
+            setLibraryOpen(false);
+            onFiles([await libraryAssetToFile(asset)]);
+          }}
+        />
+      )}
       <input
         ref={inputRef}
         type="file"

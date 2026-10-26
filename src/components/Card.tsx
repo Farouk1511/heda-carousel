@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import type { MockupLayout, Post, SlideMockup, SlideTextTransform } from "../data/posts";
 import type { ThemeName } from "../data/themes";
 import type { AspectRatio } from "../hooks/useCarouselState";
-import { legacyDesign, type CardDesign } from "../data/design/resolve";
+import { legacyDesign, tint, type CardDesign } from "../data/design/resolve";
 import { BoldText } from "./BoldText";
 import { CardDots } from "./CardDots";
 import { CardBackground } from "./card/CardBackground";
@@ -151,49 +151,24 @@ export const Card: React.FC<CardProps> = ({
         showOrb={!isCTA && !mockup}
         boostOrb={isCover}
       />
-      {d.logoChip ? (
-        <div
-          style={{
-            position: "absolute",
-            top: 12 * s,
-            right: 12 * s,
-            zIndex: 3,
-            background: "#14121c",
-            borderRadius: 10 * s,
-            padding: 5 * s,
-            display: "flex",
-            pointerEvents: "none",
-          }}
-        >
-          <img
-            src={logoSrc}
-            alt="Heda"
-            style={{
-              width: 26 * s * logoScale,
-              height: 26 * s * logoScale,
-              objectFit: "contain",
-              display: "block",
-              opacity: 0.95,
-            }}
-          />
-        </div>
-      ) : (
-        <img
-          src={logoSrc}
-          alt="Heda"
-          style={{
-            position: "absolute",
-            top: 16 * s,
-            right: 16 * s,
-            width: 32 * s * logoScale,
-            height: 32 * s * logoScale,
-            objectFit: "contain",
-            pointerEvents: "none",
-            zIndex: 3,
-            opacity: 0.9,
-          }}
-        />
-      )}
+      <img
+        src={logoSrc}
+        alt="Heda"
+        style={{
+          position: "absolute",
+          top: 16 * s,
+          right: 16 * s,
+          width: 32 * s * logoScale,
+          height: 32 * s * logoScale,
+          objectFit: "contain",
+          pointerEvents: "none",
+          zIndex: 3,
+          opacity: 0.9,
+          // Light mode: flip the white wings to ink while keeping the purple hue
+          filter: d.logoChip ? "invert(1) hue-rotate(180deg)" : undefined,
+        }}
+      />
+
 
       <div style={{ position: "relative", zIndex: 1 }}>
         <div
@@ -374,9 +349,7 @@ export const Card: React.FC<CardProps> = ({
         height: 3.5 * s,
         background: isCTA
           ? "rgba(255,255,255,0.2)"
-          : d.mode === "light"
-            ? "rgba(90,69,176,0.15)"
-            : "rgba(112,91,207,0.18)",
+          : tint(d, d.mode === "light" ? 0.15 : 0.18),
         zIndex: 2,
       }}
     >

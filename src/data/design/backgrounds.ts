@@ -37,6 +37,22 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     css: "#161430",
     swatch: "#161430",
   },
+  {
+    id: "aubergine",
+    label: "Aubergine",
+    group: "dark",
+    mode: "dark",
+    css: "#1f1330",
+    swatch: "#1f1330",
+  },
+  {
+    id: "deep-sea",
+    label: "Deep sea",
+    group: "dark",
+    mode: "dark",
+    css: "#0d1526",
+    swatch: "#0d1526",
+  },
   // ── brand solids ─────────────────────────────────────────────
   {
     id: "violet-core",
@@ -81,6 +97,46 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     mode: "light",
     css: "#e9e4f8",
     swatch: "#e9e4f8",
+  },
+  {
+    id: "cloud",
+    label: "Cloud",
+    group: "light",
+    mode: "light",
+    css: "#fbfaff",
+    swatch: "#fbfaff",
+  },
+  {
+    id: "peach",
+    label: "Peach",
+    group: "light",
+    mode: "light",
+    css: "#fdeee6",
+    swatch: "#fdeee6",
+  },
+  {
+    id: "mint-cream",
+    label: "Mint cream",
+    group: "light",
+    mode: "light",
+    css: "#e7f6f0",
+    swatch: "#e7f6f0",
+  },
+  {
+    id: "periwinkle",
+    label: "Periwinkle",
+    group: "light",
+    mode: "light",
+    css: "#e1e3fb",
+    swatch: "#e1e3fb",
+  },
+  {
+    id: "butter",
+    label: "Butter",
+    group: "light",
+    mode: "light",
+    css: "#fcf6df",
+    swatch: "#fcf6df",
   },
   // ── gradients & glows ────────────────────────────────────────
   {
@@ -137,6 +193,79 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     swatch:
       "radial-gradient(circle at 25% 25%, rgba(112,91,207,0.6) 0%, transparent 55%), radial-gradient(circle at 75% 75%, rgba(64,52,150,0.7) 0%, transparent 55%), #100e18",
   },
+  // ── vivid: louder, more playful fills ───────────────────────
+  {
+    id: "aurora",
+    label: "Aurora",
+    group: "vivid",
+    mode: "dark",
+    css: "radial-gradient(circle at 18% 18%, rgba(46,196,160,0.32) 0%, transparent 48%), radial-gradient(circle at 85% 28%, rgba(255,95,174,0.26) 0%, transparent 46%), radial-gradient(circle at 55% 95%, rgba(112,91,207,0.55) 0%, transparent 55%), #0c0b14",
+    swatch:
+      "radial-gradient(circle at 20% 20%, rgba(46,196,160,0.6) 0%, transparent 55%), radial-gradient(circle at 85% 30%, rgba(255,95,174,0.5) 0%, transparent 50%), radial-gradient(circle at 55% 95%, rgba(112,91,207,0.8) 0%, transparent 60%), #0c0b14",
+  },
+  {
+    id: "spotlight",
+    label: "Spotlight",
+    group: "vivid",
+    mode: "dark",
+    css: "radial-gradient(ellipse 85% 55% at 50% 0%, rgba(139,122,216,0.5) 0%, transparent 70%), #0b0a12",
+    swatch: "radial-gradient(ellipse 90% 60% at 50% 0%, rgba(139,122,216,0.7) 0%, transparent 72%), #0b0a12",
+  },
+  {
+    id: "twilight",
+    label: "Twilight",
+    group: "vivid",
+    mode: "dark",
+    css: "linear-gradient(180deg, #140f2e 0%, #35257a 58%, #7b5bd6 100%)",
+    ctaCss: "linear-gradient(135deg, #3d2f7a 0%, #2a2150 100%)",
+    swatch: "linear-gradient(180deg, #140f2e 0%, #35257a 58%, #7b5bd6 100%)",
+    whiteAccents: true,
+  },
+  {
+    id: "sunset",
+    label: "Sunset",
+    group: "vivid",
+    mode: "dark",
+    css: "linear-gradient(160deg, #241543 0%, #6d2f7e 55%, #e0706b 100%)",
+    ctaCss: "linear-gradient(135deg, #6d2f7e 0%, #241543 100%)",
+    swatch: "linear-gradient(160deg, #241543 0%, #6d2f7e 55%, #e0706b 100%)",
+    whiteAccents: true,
+  },
+  {
+    id: "split",
+    label: "Split",
+    group: "vivid",
+    mode: "dark",
+    css: "linear-gradient(160deg, #705bcf 0%, #705bcf 52%, #2a2150 52%, #2a2150 100%)",
+    ctaCss: "linear-gradient(135deg, #3d2f7a 0%, #2a2150 100%)",
+    swatch: "linear-gradient(160deg, #705bcf 0%, #705bcf 52%, #2a2150 52%, #2a2150 100%)",
+    whiteAccents: true,
+  },
+  {
+    id: "candy",
+    label: "Candy",
+    group: "vivid",
+    mode: "light",
+    css: "linear-gradient(135deg, #fde4f1 0%, #e6defc 100%)",
+    swatch: "linear-gradient(135deg, #fbcfe5 0%, #d9ccfb 100%)",
+  },
+  {
+    id: "sky-wash",
+    label: "Sky wash",
+    group: "vivid",
+    mode: "light",
+    css: "linear-gradient(165deg, #e1ecff 0%, #f1eaff 100%)",
+    swatch: "linear-gradient(165deg, #cfe0ff 0%, #e6dcff 100%)",
+  },
+  {
+    id: "holo",
+    label: "Holo",
+    group: "vivid",
+    mode: "light",
+    css: "radial-gradient(circle at 12% 18%, rgba(255,156,203,0.45) 0%, transparent 45%), radial-gradient(circle at 88% 22%, rgba(133,199,255,0.45) 0%, transparent 45%), radial-gradient(circle at 60% 92%, rgba(111,224,196,0.4) 0%, transparent 50%), #f6f4ff",
+    swatch:
+      "radial-gradient(circle at 15% 20%, rgba(255,156,203,0.8) 0%, transparent 50%), radial-gradient(circle at 85% 25%, rgba(133,199,255,0.8) 0%, transparent 50%), radial-gradient(circle at 60% 90%, rgba(111,224,196,0.7) 0%, transparent 55%), #f6f4ff",
+  },
 ];
 
 export const BACKGROUND_GROUPS: { id: BackgroundPreset["group"]; label: string }[] = [
@@ -144,6 +273,7 @@ export const BACKGROUND_GROUPS: { id: BackgroundPreset["group"]; label: string }
   { id: "brand", label: "Brand" },
   { id: "light", label: "Light" },
   { id: "gradient", label: "Gradient" },
+  { id: "vivid", label: "Vivid" },
 ];
 
 export function getBackground(id: string | undefined): BackgroundPreset | undefined {

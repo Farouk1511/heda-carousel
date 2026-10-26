@@ -20,6 +20,8 @@ import {
 } from "../../data/marketing/elements";
 import { MarkupToolbar } from "./MarkupToolbar";
 import { SizePicker } from "./SizePicker";
+import { LibraryPicker } from "../LibraryPicker";
+import { libraryAssetToFile } from "../../data/library";
 
 interface InspectorPanelProps {
   state: MarketingState;
@@ -56,6 +58,7 @@ function readImageFile(file: File): Promise<{ url: string; ratio: number }> {
 export const InspectorPanel: React.FC<InspectorPanelProps> = ({ state }) => {
   const { activeDesign, selectedElement, brand } = state;
   const fileRef = useRef<HTMLInputElement>(null);
+  const [libraryOpen, setLibraryOpen] = useState(false);
 
   if (!activeDesign) return null;
 
@@ -86,6 +89,17 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({ state }) => {
         onChange={onFilePick}
       />
 
+      {libraryOpen && (
+        <LibraryPicker
+          initialCategory="mascots"
+          onClose={() => setLibraryOpen(false)}
+          onPick={async (asset) => {
+            setLibraryOpen(false);
+            await addImageFromFile(await libraryAssetToFile(asset));
+          }}
+        />
+      )}
+
       {/* SIZES */}
       <div className="section-label">SIZES</div>
       <SizePicker state={state} />
@@ -103,6 +117,9 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({ state }) => {
         </button>
         <button className="mk-add-btn" onClick={() => fileRef.current?.click()}>
           + Image
+        </button>
+        <button className="mk-add-btn" onClick={() => setLibraryOpen(true)}>
+          + Library
         </button>
       </div>
       <div className="mk-el-list">

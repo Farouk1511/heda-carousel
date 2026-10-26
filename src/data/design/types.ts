@@ -1,5 +1,5 @@
 export type BackgroundMode = "dark" | "light";
-export type BackgroundGroup = "dark" | "brand" | "light" | "gradient";
+export type BackgroundGroup = "dark" | "brand" | "light" | "gradient" | "vivid";
 
 export interface BackgroundPreset {
   id: string;
@@ -23,9 +23,24 @@ export type HighlightStyle = "color" | "marker" | "gradient" | "underline";
 export interface TextureOptions {
   grain?: boolean;
   secondOrb?: boolean;
+  /** Legacy: superseded by PostStyleEntry.pattern = "dots"; still honoured when pattern is unset */
   dotGrid?: boolean;
   hueJourney?: boolean;
+  vignette?: boolean;
 }
+
+/** One repeating/decorative layer painted over the background */
+export type PatternId =
+  | "none"
+  | "dots"
+  | "grid"
+  | "lines"
+  | "rings"
+  | "halftone"
+  | "sparkle"
+  | "confetti";
+
+export type AccentId = "violet" | "coral" | "mint" | "sky" | "sunshine" | "pink";
 
 export interface ChromeOptions {
   swipePill?: boolean;
@@ -49,6 +64,9 @@ export interface SlideStyle {
 export interface PostStyleEntry {
   backgroundId?: string;
   highlightStyle?: HighlightStyle;
+  /** Highlight / dots / glow colour; default violet */
+  accent?: AccentId;
+  pattern?: PatternId;
   texture?: TextureOptions;
   chrome?: ChromeOptions;
   coverWatermark?: boolean;

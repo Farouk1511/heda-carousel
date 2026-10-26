@@ -19,7 +19,6 @@ export interface CarouselState {
   selectedPost: number;
   currentSlide: number;
   theme: ThemeName;
-  editingSlide: number | null;
   sidebarCollapsed: boolean;
   exportRatio: AspectRatio;
   logoScale: number;
@@ -32,7 +31,6 @@ export function useCarouselState() {
   const [selectedPost, setSelectedPost] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [theme, setTheme] = useState<ThemeName>("standard");
-  const [editingSlide, setEditingSlide] = useState<number | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [exportRatio, setExportRatio] = useState<AspectRatio>("4:5");
   const [logoScale, setLogoScale] = useState(1);
@@ -56,7 +54,6 @@ export function useCarouselState() {
   const selectPost = useCallback((i: number) => {
     setSelectedPost(i);
     setCurrentSlide(0);
-    setEditingSlide(null);
   }, []);
 
   const prevSlide = useCallback(() => {
@@ -70,14 +67,6 @@ export function useCarouselState() {
   const goSlide = useCallback((i: number) => {
     setCurrentSlide(i);
   }, []);
-
-  const toggleEdit = useCallback(
-    (i: number) => {
-      setEditingSlide(editingSlide === i ? null : i);
-      setCurrentSlide(i);
-    },
-    [editingSlide]
-  );
 
   const updateField = useCallback(
     (slideIdx: number, field: "headline" | "sub", value: string) => {
@@ -225,7 +214,6 @@ export function useCarouselState() {
     selectedPost,
     currentSlide,
     theme,
-    editingSlide,
     sidebarCollapsed,
     exportRatio,
     logoScale,
@@ -243,7 +231,6 @@ export function useCarouselState() {
     nextSlide,
     goSlide,
     setTheme,
-    toggleEdit,
     updateField,
     updateMockup,
     patchMockup,

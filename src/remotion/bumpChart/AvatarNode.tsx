@@ -3,7 +3,7 @@ import { Img } from "remotion";
 import { initials, type AvatarMap } from "../../data/leaderboard/avatars";
 import { formatSteps } from "../../data/leaderboard/parse";
 import type { ThemeTokens } from "../../data/themes";
-import { AVATAR_SIZE } from "./constants";
+import type { BumpLabels } from "./config";
 
 /**
  * Pick the image source: a pre-fetched data URL when render.ts supplied one,
@@ -92,6 +92,9 @@ interface AvatarNodeProps {
   color: string;
   x: number;
   y: number;
+  /** Avatar diameter; the pill scales with it. */
+  size: number;
+  labels: BumpLabels;
   /** Current (ticking) cumulative step count. */
   stepValue: number;
   scale: number;
@@ -99,7 +102,7 @@ interface AvatarNodeProps {
   theme: ThemeTokens;
 }
 
-/** The rider at a line tip: avatar circle plus a name/steps pill. */
+/** The rider at a line tip: avatar circle plus an optional name/steps pill. */
 export const AvatarNode: React.FC<AvatarNodeProps> = ({
   name,
   imageUrl,
@@ -107,24 +110,27 @@ export const AvatarNode: React.FC<AvatarNodeProps> = ({
   color,
   x,
   y,
+  size,
+  labels,
   stepValue,
   scale,
   opacity,
   theme,
 }) => {
   if (scale <= 0.001 || opacity <= 0.001) return null;
+  const k = size / 64;
   return (
     <div
       style={{
         position: "absolute",
-        left: x - AVATAR_SIZE / 2,
-        top: y - AVATAR_SIZE / 2,
+        left: x - size / 2,
+        top: y - size / 2,
         display: "flex",
         alignItems: "center",
-        gap: 14,
+        gap: 14 * k,
         opacity,
         transform: `scale(${scale})`,
-        transformOrigin: `${AVATAR_SIZE / 2}px ${AVATAR_SIZE / 2}px`,
+        transformOrigin: `${size / 2}px ${size / 2}px`,
         zIndex: Math.round(2000 - y),
       }}
     >
@@ -132,47 +138,51 @@ export const AvatarNode: React.FC<AvatarNodeProps> = ({
         name={name}
         imageUrl={imageUrl}
         avatars={avatars}
-        size={AVATAR_SIZE}
+        size={size}
         ringColor={color}
         theme={theme}
       />
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-          background: "rgba(10,9,16,0.62)",
-          borderRadius: 12,
-          padding: "6px 14px",
-          maxWidth: 220,
-        }}
-      >
-        <span
+      {labels !== "avatar" && (
+        <div
           style={{
-            fontSize: 25,
-            fontWeight: 600,
-            color: theme.textHeadline,
-            fontFamily: "'Space Grotesk', sans-serif",
-            lineHeight: 1.15,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            background: "rgba(10,9,16,0.62)",
+            borderRadius: 12 * k,
+            padding: `${6 * k}px ${14 * k}px`,
+            maxWidth: 220 * k,
           }}
         >
-          {name}
-        </span>
-        <span
-          style={{
-            fontSize: 21,
-            fontWeight: 600,
-            color,
-            fontFamily: "'JetBrains Mono', monospace",
-            lineHeight: 1.1,
-          }}
-        >
-          {formatSteps(stepValue)}
-        </span>
-      </div>
+          <span
+            style={{
+              fontSize: 25 * k,
+              fontWeight: 600,
+              color: theme.textHeadline,
+              fontFamily: "'Space Grotesk', sans-serif",
+              lineHeight: 1.15,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {name}
+          </span>
+          {labels === "full" && (
+            <span
+              style={{
+                fontSize: 21 * k,
+                fontWeight: 600,
+                color,
+                fontFamily: "'JetBrains Mono', monospace",
+                lineHeight: 1.1,
+              }}
+            >
+              {formatSteps(stepValue)}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 };

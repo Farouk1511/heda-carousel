@@ -15,8 +15,8 @@ import {
   getBumpChartDurationFromProps,
   type BumpChartProps,
 } from "./BumpChartComposition";
-import { BUMP_FPS, BUMP_HEIGHT, BUMP_WIDTH } from "./bumpChart/constants";
-import { DEFAULT_BUMP_CONFIG } from "./bumpChart/config";
+import { BUMP_FPS, BUMP_HEIGHT, BUMP_WIDTH, getBumpFrameSize } from "./bumpChart/constants";
+import { DEFAULT_BUMP_CONFIG, resolveBumpConfig } from "./bumpChart/config";
 import { SAMPLE_LEADERBOARD } from "../data/leaderboard/sample";
 
 export const RemotionRoot: React.FC = () => {
@@ -80,9 +80,13 @@ export const RemotionRoot: React.FC = () => {
           data: SAMPLE_LEADERBOARD,
           config: DEFAULT_BUMP_CONFIG,
         }}
-        calculateMetadata={({ props }) => ({
-          durationInFrames: getBumpChartDurationFromProps(props as unknown as BumpChartProps),
-        })}
+        calculateMetadata={({ props }) => {
+          const castProps = props as unknown as BumpChartProps;
+          return {
+            durationInFrames: getBumpChartDurationFromProps(castProps),
+            ...getBumpFrameSize(resolveBumpConfig(castProps.config).format),
+          };
+        }}
       />
     </>
   );

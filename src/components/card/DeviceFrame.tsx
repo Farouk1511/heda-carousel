@@ -1,6 +1,6 @@
 import React from "react";
 import type { MockupFrame } from "../../data/design/types";
-import type { CardDesign } from "../../data/design/resolve";
+import { tint, type CardDesign } from "../../data/design/resolve";
 
 interface DeviceFrameProps {
   frame: MockupFrame;
@@ -26,7 +26,7 @@ export const DeviceFrame: React.FC<DeviceFrameProps> = ({
         position: "absolute",
         inset: -28 * s,
         borderRadius: "50%",
-        background: `radial-gradient(circle, ${d.mode === "light" ? "rgba(112,91,207,0.28)" : "rgba(112,91,207,0.4)"} 0%, transparent 68%)`,
+        background: `radial-gradient(circle, ${tint(d, d.mode === "light" ? 0.28 : 0.4)} 0%, transparent 68%)`,
         pointerEvents: "none",
         zIndex: 0,
       }}

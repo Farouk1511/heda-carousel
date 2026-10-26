@@ -6,6 +6,12 @@ import type {
   LeaderboardEntry,
 } from "../data/leaderboard/types";
 import { parseLeaderboard } from "../data/leaderboard/parse";
+import type { LookStyle } from "../data/design/lookState";
+import { resolveDesign } from "../data/design/resolve";
+import {
+  loadLeaderboardStyle,
+  saveLeaderboardStyle,
+} from "../utils/stylePersistence";
 import { resolveAvatars, type AvatarMap } from "../data/leaderboard/avatars";
 import {
   SAMPLE_LEADERBOARD,
@@ -36,6 +42,7 @@ export function useLeaderboardState() {
   const [exportRatio, setExportRatio] = useState<AspectRatio>("4:5");
   const [logoScale, setLogoScale] = useState(1);
   const [cta, setCta] = useState<string>(DEFAULT_LEADERBOARD_CTA);
+  const [style, setStyle] = useState<LookStyle>(() => loadLeaderboardStyle());
   const [avatars, setAvatars] = useState<AvatarMap>({});
   const avatarsRef = useRef<AvatarMap>({});
 
@@ -53,6 +60,19 @@ export function useLeaderboardState() {
       cancelled = true;
     };
   }, [data]);
+
+  useEffect(() => {
+    saveLeaderboardStyle(style);
+  }, [style]);
+
+  /** Merge a look patch, deep-merging the texture bag like the carousel does. */
+  const patchStyle = useCallback((patch: LookStyle) => {
+    setStyle((prev) => {
+      const next: LookStyle = { ...prev, ...patch };
+      if (patch.texture) next.texture = { ...prev.texture, ...patch.texture };
+      return next;
+    });
+  }, []);
 
   /** Resolve every current avatar and return the complete map (used before export). */
   const ensureAvatars = useCallback(async (): Promise<AvatarMap> => {
@@ -133,11 +153,17 @@ export function useLeaderboardState() {
     [commit, data]
   );
 
+  // The leaderboard card is a single card, so slide index 0 is always right.
+  const design = resolveDesign(theme, style, 0);
+
   return {
     data,
     jsonDraft,
     parseError,
     theme,
+    style,
+    design,
+    patchStyle,
     exportRatio,
     logoScale,
     cta,

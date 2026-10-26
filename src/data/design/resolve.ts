@@ -4,11 +4,13 @@ import type {
   ChromeOptions,
   HighlightStyle,
   MockupFrame,
+  PatternId,
   PostStyleEntry,
   SlideVariant,
   TextureOptions,
 } from "./types";
 import { BRAND_CTA, getBackground, themeDefaultBackground } from "./backgrounds";
+import { getAccent, hexToRgb } from "./accents";
 
 export interface CardDesign {
   mode: BackgroundMode;
@@ -18,6 +20,10 @@ export interface CardDesign {
   borderCTA: string;
   accent: string;
   accentLight: string;
+  /** "r,g,b" of the accent tuned for this background; use via tint() */
+  accentRgb: string;
+  /** Saturated purple background: accents render white */
+  whiteAccents: boolean;
   /** Color for **bold** runs; differs from accent on light / saturated-purple backgrounds */
   hlColor: string;
   headlineColor: string;
@@ -31,13 +37,14 @@ export interface CardDesign {
     ctaInactive: string;
   };
   chip: { bg: string; border: string; text: string };
-  /** Light mode: render a dark chip behind the (light-on-dark) logo */
+  /** Light mode: invert the (light-on-dark) logo so it reads on a pale card */
   logoChip: boolean;
   mockupShadow: string;
   orb: string;
   orbSecondary: string;
   highlightStyle: HighlightStyle;
   texture: Required<TextureOptions>;
+  pattern: PatternId;
   chrome: Required<ChromeOptions>;
   cover: { treatment: boolean; watermark: boolean; chip: boolean };
   variant: SlideVariant;
@@ -47,14 +54,19 @@ export interface CardDesign {
 
 const ACCENT = "#705bcf";
 const ACCENT_LIGHT = "#8b7ad8";
-const ACCENT_DEEP = "#5a45b0";
 
 const NO_TEXTURE: Required<TextureOptions> = {
   grain: false,
   secondOrb: false,
   dotGrid: false,
   hueJourney: false,
+  vignette: false,
 };
+
+/** Accent at a given alpha, e.g. tint(d, 0.18) */
+export function tint(d: CardDesign, alpha: number): string {
+  return `rgba(${d.accentRgb},${alpha})`;
+}
 
 const NO_CHROME: Required<ChromeOptions> = {
   swipePill: false,
@@ -81,6 +93,8 @@ export function legacyDesign(theme: ThemeName): CardDesign {
     borderCTA: "none",
     accent: ACCENT,
     accentLight: ACCENT_LIGHT,
+    accentRgb: "112,91,207",
+    whiteAccents: false,
     hlColor: ACCENT,
     headlineColor: "#f0eef5",
     textColor: "#e8e6f0",
@@ -107,6 +121,7 @@ export function legacyDesign(theme: ThemeName): CardDesign {
     orbSecondary: "radial-gradient(circle, rgba(112,91,207,0.18) 0%, transparent 70%)",
     highlightStyle: "color",
     texture: NO_TEXTURE,
+    pattern: "none",
     chrome: NO_CHROME,
     cover: { treatment: false, watermark: false, chip: false },
     variant: "default",
@@ -132,8 +147,12 @@ export function resolveDesign(
   const light = preset.mode === "light";
   const white = !!preset.whiteAccents;
 
-  const hlColor = white ? "#fff" : light ? ACCENT_DEEP : ACCENT;
-  const dotBase = white ? "255,255,255" : light ? "90,69,176" : "112,91,207";
+  const accent = getAccent(style?.accent);
+  const accentRgb = hexToRgb(light ? accent.deep : accent.base);
+  const baseRgb = hexToRgb(accent.base);
+
+  const hlColor = white ? "#fff" : light ? accent.deep : accent.base;
+  const dotBase = white ? "255,255,255" : accentRgb;
 
   return {
     mode: preset.mode,
@@ -142,18 +161,20 @@ export function resolveDesign(
     border: white
       ? "1px solid rgba(255,255,255,0.18)"
       : light
-        ? "1px solid rgba(90,69,176,0.18)"
-        : "1px solid rgba(112,91,207,0.2)",
+        ? `1px solid rgba(${accentRgb},0.18)`
+        : `1px solid rgba(${accentRgb},0.2)`,
     borderCTA: "none",
-    accent: ACCENT,
-    accentLight: ACCENT_LIGHT,
+    accent: accent.base,
+    accentLight: accent.light,
+    accentRgb,
+    whiteAccents: white,
     hlColor,
     headlineColor: white ? "#fff" : light ? "#191622" : "#f0eef5",
     textColor: white ? "#f4f1ff" : light ? "#2a2438" : "#e8e6f0",
     ctaHeadlineColor: "#fff",
     ctaTextColor: "#fff",
     dots: {
-      active: white ? "#fff" : light ? ACCENT_DEEP : ACCENT,
+      active: white ? "#fff" : hlColor,
       inactive: `rgba(${dotBase},${white ? 0.35 : 0.25})`,
       ctaActive: "#fff",
       ctaInactive: "rgba(255,255,255,0.3)",
@@ -166,14 +187,14 @@ export function resolveDesign(
         }
       : light
         ? {
-            bg: "rgba(90,69,176,0.08)",
-            border: "1px solid rgba(90,69,176,0.3)",
-            text: ACCENT_DEEP,
+            bg: `rgba(${accentRgb},0.08)`,
+            border: `1px solid rgba(${accentRgb},0.3)`,
+            text: accent.deep,
           }
         : {
-            bg: "rgba(112,91,207,0.12)",
-            border: "1px solid rgba(112,91,207,0.35)",
-            text: "#b3a5ec",
+            bg: `rgba(${accentRgb},0.12)`,
+            border: `1px solid rgba(${accentRgb},0.35)`,
+            text: accent.id === "violet" ? "#b3a5ec" : accent.light,
           },
     logoChip: light,
     mockupShadow: light
@@ -182,15 +203,16 @@ export function resolveDesign(
     orb: white
       ? "radial-gradient(circle, rgba(255,255,255,0.16) 0%, transparent 70%)"
       : light
-        ? "radial-gradient(circle, rgba(112,91,207,0.18) 0%, transparent 70%)"
-        : "radial-gradient(circle, rgba(112,91,207,0.3) 0%, transparent 70%)",
+        ? `radial-gradient(circle, rgba(${baseRgb},0.18) 0%, transparent 70%)`
+        : `radial-gradient(circle, rgba(${baseRgb},0.3) 0%, transparent 70%)`,
     orbSecondary: white
       ? "radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)"
       : light
-        ? "radial-gradient(circle, rgba(112,91,207,0.12) 0%, transparent 70%)"
-        : "radial-gradient(circle, rgba(112,91,207,0.18) 0%, transparent 70%)",
+        ? `radial-gradient(circle, rgba(${baseRgb},0.12) 0%, transparent 70%)`
+        : `radial-gradient(circle, rgba(${baseRgb},0.18) 0%, transparent 70%)`,
     highlightStyle: style?.highlightStyle ?? "color",
     texture: { ...NO_TEXTURE, ...style?.texture },
+    pattern: style?.pattern ?? (style?.texture?.dotGrid ? "dots" : "none"),
     chrome: {
       swipePill: style?.chrome?.swipePill ?? true,
       progressBar: style?.chrome?.progressBar ?? false,

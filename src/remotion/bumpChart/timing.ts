@@ -1,9 +1,13 @@
-import type { BumpPacing, BumpReelConfig } from "./config";
+import type { BumpHold, BumpPacing, BumpReelConfig } from "./config";
 
 export const INTRO_FRAMES = 75;
 export const AXES_FRAMES = 30;
 export const PLACE_FRAMES = 30;
-export const HOLD_FRAMES = 45;
+export const HOLD_FRAMES: Record<BumpHold, number> = {
+  short: 20,
+  normal: 45,
+  long: 90,
+};
 export const OUTRO_FRAMES = 105;
 
 export const SEGMENT_FRAMES: Record<BumpPacing, number> = {
@@ -41,7 +45,7 @@ export function getBumpTimeline(dayCount: number, config: BumpReelConfig): BumpT
   const segmentFrames = SEGMENT_FRAMES[config.pacing];
   const segmentsStart = AXES_FRAMES + PLACE_FRAMES;
   const segmentsEnd = segmentsStart + segmentFrames * Math.max(dayCount - 1, 0);
-  const holdEnd = segmentsEnd + HOLD_FRAMES;
+  const holdEnd = segmentsEnd + HOLD_FRAMES[config.hold];
   const outroFrames = config.showOutro ? OUTRO_FRAMES : 0;
   const chartFrames = holdEnd + outroFrames;
   return {

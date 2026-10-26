@@ -17,7 +17,7 @@ import type { IncomingMessage, ServerResponse } from "http";
 import type { Plugin } from "vite";
 import { parseLeaderboard, weekSlug } from "./src/data/leaderboard/parse";
 import { validateDailySteps } from "./src/data/leaderboard/daily";
-import { resolveBumpConfig, type BumpReelConfig } from "./src/remotion/bumpChart/config";
+import { bumpReelFileName, resolveBumpConfig, type BumpReelConfig } from "./src/remotion/bumpChart/config";
 import { prefetchAvatars } from "./src/data/leaderboard/avatarsNode";
 import type { LeaderboardData } from "./src/data/leaderboard/types";
 
@@ -84,7 +84,7 @@ export function bumpRenderPlugin(): Plugin {
 
       const outDir = path.resolve(root, "out");
       if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
-      const fileName = `heda_bumpchart_${weekSlug(data)}_${config.theme}.mp4`;
+      const fileName = bumpReelFileName(weekSlug(data), config);
       const outputLocation = path.join(outDir, fileName);
 
       await renderMedia({

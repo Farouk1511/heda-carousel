@@ -41,11 +41,9 @@ export const CarouselView: React.FC<CarouselViewProps> = ({ state }) => {
         post={state.post}
         currentSlide={state.currentSlide}
         theme={state.theme}
-        editingSlide={state.editingSlide}
         exportRatio={state.exportRatio}
         logoScale={state.logoScale}
         onSetTheme={state.setTheme}
-        onToggleEdit={state.toggleEdit}
         onUpdateField={state.updateField}
         onUpdateMockup={state.updateMockup}
         onPatchMockup={state.patchMockup}

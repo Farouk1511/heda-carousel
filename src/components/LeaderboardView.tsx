@@ -1,15 +1,19 @@
-import React, { useMemo, useRef, useState } from "react";
-import type { ThemeName } from "../data/themes";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { AspectRatio } from "../hooks/useCarouselState";
 import { useLeaderboardState } from "../hooks/useLeaderboardState";
 import { paginateLeaderboard } from "../data/leaderboard/pagination";
 import { validateDailySteps } from "../data/leaderboard/daily";
+import { hasCustomLook, RESET_LOOK } from "../data/design/lookState";
 import { LeaderboardCard } from "./LeaderboardCard";
 import { VideoPreview, VideoSettings } from "./leaderboard/VideoPanel";
+import { LookSections } from "./panel/LookSections";
+import { FieldLabel, PanelSection, Segmented, Stepper } from "./panel/PanelUI";
 import {
   DEFAULT_BUMP_CONFIG,
+  resolveBumpConfig,
   type BumpReelConfig,
 } from "../remotion/bumpChart/config";
+import { loadBumpVideoConfig, saveBumpVideoConfig } from "../utils/stylePersistence";
 import {
   exportBumpReelFile,
   exportLeaderboardImage,
@@ -20,12 +24,23 @@ import {
 const ALL_RATIOS: AspectRatio[] = ["1:1", "4:5", "9:16"];
 
 type LeaderboardTab = "images" | "video";
+type PanelTab = "style" | "content" | "export";
+
+const PANEL_TABS: { value: PanelTab; label: string }[] = [
+  { value: "style", label: "Style" },
+  { value: "content", label: "Content" },
+  { value: "export", label: "Export" },
+];
 
 export const LeaderboardView: React.FC = () => {
   const lb = useLeaderboardState();
   const [tab, setTab] = useState<LeaderboardTab>("images");
+  const [panelTab, setPanelTab] = useState<PanelTab>("style");
   const [previewPage, setPreviewPage] = useState(0);
-  const [videoConfig, setVideoConfig] = useState<BumpReelConfig>(DEFAULT_BUMP_CONFIG);
+  const [videoConfig, setVideoConfig] = useState<BumpReelConfig>(() =>
+    resolveBumpConfig(loadBumpVideoConfig())
+  );
+  useEffect(() => saveBumpVideoConfig(videoConfig), [videoConfig]);
   const [rendering, setRendering] = useState(false);
   const progressRef = useRef<HTMLDivElement>(null);
 
@@ -38,7 +53,7 @@ export const LeaderboardView: React.FC = () => {
   const safePage = Math.min(previewPage, pageCount - 1);
 
   // The CTA is shared content: the cards' footer and the video's outro use
-  // the same line, edited once in the CONTENT section.
+  // the same line, edited once in the CONTENT tab.
   const effectiveVideoConfig = useMemo(
     () => ({ ...videoConfig, cta: lb.cta }),
     [videoConfig, lb.cta]
@@ -57,6 +72,7 @@ export const LeaderboardView: React.FC = () => {
       lb.logoScale,
       lb.cta,
       avatars,
+      lb.design,
       setProgress
     );
   };
@@ -70,6 +86,7 @@ export const LeaderboardView: React.FC = () => {
       lb.logoScale,
       lb.cta,
       avatars,
+      lb.design,
       setProgress
     );
   };
@@ -87,174 +104,90 @@ export const LeaderboardView: React.FC = () => {
     }
   };
 
-  return (
-    <>
-      <div className="center">
-        <div className="topbar">
-          <div className="topbar-left" style={{ display: "flex", alignItems: "center" }}>
-            <div className="post-title-bar">Weekly Leaderboard</div>
-            <div className="lb-tabs">
-              {(["images", "video"] as LeaderboardTab[]).map((t) => (
-                <button
-                  key={t}
-                  className={`mode-switch-btn${tab === t ? " active" : ""}`}
-                  onClick={() => setTab(t)}
-                >
-                  {t === "images" ? "Images" : "Video"}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="tags">
-            {tab === "images" ? (
-              <>
-                <span className="tag">{lb.exportRatio}</span>
-                <span className="tag">{lb.theme}</span>
-                {pageCount > 1 && <span className="tag">{pageCount} imgs</span>}
-              </>
-            ) : (
-              <>
-                <span className="tag">9:16</span>
-                <span className="tag">{videoConfig.theme}</span>
-                <span className="tag">{videoConfig.pacing}</span>
-              </>
-            )}
-          </div>
-        </div>
+  const renderStyleTab = () =>
+    tab === "video" ? (
+      <VideoSettings
+        config={videoConfig}
+        onChange={patchVideoConfig}
+        onReset={() => setVideoConfig({ ...DEFAULT_BUMP_CONFIG })}
+      />
+    ) : (
+      <>
+        <LookSections
+          theme={lb.theme}
+          onSetTheme={lb.setTheme}
+          style={lb.style}
+          onPatch={lb.patchStyle}
+          showHighlight={false}
+          showHueJourney={false}
+          idPrefix="lb-"
+        />
 
-        {tab === "images" && pageCount > 1 && (
-          <div className="slide-nav">
-            <button
-              className="nav-btn"
-              onClick={() => setPreviewPage((p) => Math.max(0, p - 1))}
-              disabled={safePage === 0}
-            >
-              ‹
-            </button>
-            <span className="slide-counter">
-              Part {safePage + 1} / {pageCount}
-            </span>
-            <button
-              className="nav-btn"
-              onClick={() => setPreviewPage((p) => Math.min(pageCount - 1, p + 1))}
-              disabled={safePage === pageCount - 1}
-            >
-              ›
-            </button>
-          </div>
-        )}
-
-        <div
-          className="card-area"
-          style={{ paddingTop: tab === "images" && pageCount > 1 ? 8 : 24 }}
-        >
-          {tab === "images" ? (
-            <div style={{ width: "100%", maxWidth: 400 }}>
-              <LeaderboardCard
-                data={lb.data}
-                theme={lb.theme}
-                aspectRatio={lb.exportRatio}
-                logoScale={lb.logoScale}
-                cta={lb.cta}
-                pageIndex={safePage}
-                avatars={lb.avatars}
-              />
+        <PanelSection id="lb-card" title="Card">
+          <FieldLabel>Aspect ratio</FieldLabel>
+          <Segmented
+            options={ALL_RATIOS.map((r) => {
+              const n = paginateLeaderboard(lb.data.leaderboard, r).length;
+              return { value: r, label: n > 1 ? `${r} ·${n}` : r };
+            })}
+            value={lb.exportRatio}
+            onChange={(r) => {
+              lb.setExportRatio(r);
+              setPreviewPage(0);
+            }}
+          />
+          <Stepper
+            label="Logo size"
+            value={lb.logoScale}
+            min={0.75}
+            max={2.5}
+            onChange={lb.setLogoScale}
+            onReset={lb.logoScale !== 1 ? () => lb.setLogoScale(1) : undefined}
+          />
+          {pageCount > 1 && (
+            <div className="pf-hint">
+              {lb.data.leaderboard.length} athletes don't fit one {lb.exportRatio} card, so
+              this exports as {pageCount} images.
             </div>
-          ) : (
-            <VideoPreview
-              data={lb.data}
-              config={effectiveVideoConfig}
-              avatars={lb.avatars}
-            />
           )}
-        </div>
-      </div>
+        </PanelSection>
 
-      <div className="sidebar-right lb-wide">
-        {tab === "images" ? (
-          <>
-            <div className="section-label">THEME</div>
-            <div className="theme-btns">
-              {(["standard", "deep"] as ThemeName[]).map((th) => (
-                <button
-                  key={th}
-                  className={`theme-btn${lb.theme === th ? " active" : ""}`}
-                  onClick={() => lb.setTheme(th)}
-                >
-                  {th}
-                </button>
-              ))}
-            </div>
-
-            <div className="section-label">ASPECT RATIO</div>
-            <div className="ratio-btns">
-              {ALL_RATIOS.map((r) => {
-                const n = paginateLeaderboard(lb.data.leaderboard, r).length;
-                return (
-                  <button
-                    key={r}
-                    className={`ratio-btn${lb.exportRatio === r ? " active" : ""}`}
-                    onClick={() => {
-                      lb.setExportRatio(r);
-                      setPreviewPage(0);
-                    }}
-                  >
-                    {r}
-                    {n > 1 ? ` ·${n}` : ""}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="section-label">LOGO SIZE</div>
-            <div className="size-control">
-              <button
-                className="size-btn"
-                onClick={() =>
-                  lb.setLogoScale(Math.max(0.75, Number((lb.logoScale - 0.1).toFixed(2))))
-                }
-              >
-                -
-              </button>
-              <div className="size-value">{Math.round(lb.logoScale * 100)}%</div>
-              <button
-                className="size-btn"
-                onClick={() =>
-                  lb.setLogoScale(Math.min(2.5, Number((lb.logoScale + 0.1).toFixed(2))))
-                }
-              >
-                +
-              </button>
-            </div>
-          </>
-        ) : (
-          <VideoSettings config={videoConfig} onChange={patchVideoConfig} />
+        {hasCustomLook(lb.style) && (
+          <button
+            type="button"
+            className="panel-reset"
+            onClick={() => lb.patchStyle(RESET_LOOK)}
+          >
+            Reset card look
+          </button>
         )}
+      </>
+    );
 
-        <div className="section-label" style={{ marginTop: 24 }}>
-          CONTENT
-        </div>
-        <div className="edit-field">
-          <label className="edit-label">WEEK LABEL</label>
-          <input
-            className="edit-textarea"
-            value={lb.data.week.label}
-            onChange={(e) => lb.updateWeekLabel(e.target.value)}
-          />
-        </div>
-        <div className="edit-field">
-          <label className="edit-label">CTA LINE</label>
-          <input
-            className="edit-textarea"
-            value={lb.cta}
-            placeholder="e.g. Join the challenge ↓"
-            onChange={(e) => lb.setCta(e.target.value)}
-          />
-        </div>
+  const renderContentTab = () => (
+    <>
+      <PanelSection id="lb-text" title="Text">
+        <FieldLabel>Week label</FieldLabel>
+        <input
+          className="edit-textarea"
+          value={lb.data.week.label}
+          onChange={(e) => lb.updateWeekLabel(e.target.value)}
+        />
+        <FieldLabel>CTA line</FieldLabel>
+        <input
+          className="edit-textarea"
+          value={lb.cta}
+          placeholder="e.g. Join the challenge ↓"
+          onChange={(e) => lb.setCta(e.target.value)}
+        />
+        <div className="pf-hint">The CTA shows on the cards and the video outro.</div>
+      </PanelSection>
 
-        <div className="section-label" style={{ marginTop: 20 }}>
-          LEADERBOARD ({lb.data.leaderboard.length})
-        </div>
+      <PanelSection
+        id="lb-roster"
+        title="Athletes"
+        aside={<span className="ps-note">{lb.data.leaderboard.length} rows</span>}
+      >
         {lb.data.leaderboard.map((entry, i) => (
           <div className="lb-row" key={i}>
             <span className="lb-row-rank">{String(entry.rank).padStart(2, "0")}</span>
@@ -299,10 +232,9 @@ export const LeaderboardView: React.FC = () => {
         <button className="export-btn-secondary" style={{ marginTop: 4 }} onClick={lb.addEntry}>
           + Add row
         </button>
+      </PanelSection>
 
-        <div className="section-label" style={{ marginTop: 24 }}>
-          IMPORT JSON
-        </div>
+      <PanelSection id="lb-json" title="Import JSON" defaultOpen={false}>
         <textarea
           className="edit-textarea"
           style={{ fontFamily: "var(--font-mono)", fontSize: 11, minHeight: 150 }}
@@ -312,60 +244,170 @@ export const LeaderboardView: React.FC = () => {
         />
         {lb.parseError && <div className="bulk-modal-error">{lb.parseError}</div>}
         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <button className="export-btn-primary" style={{ marginBottom: 0, flex: 2 }} onClick={lb.applyJson}>
+          <button
+            className="export-btn-primary"
+            style={{ marginBottom: 0, flex: 2 }}
+            onClick={lb.applyJson}
+          >
             Apply JSON
           </button>
           <button className="export-btn-secondary" style={{ flex: 1 }} onClick={lb.resetToSample}>
             Reset
           </button>
         </div>
+      </PanelSection>
+    </>
+  );
 
-        {tab === "images" ? (
-          <>
-            <div className="section-label" style={{ marginTop: 28 }}>
-              EXPORT — IMAGES
+  const renderExportTab = () => (
+    <>
+      {tab === "images" ? (
+        <PanelSection id="lb-export-images" title="Images">
+          <button className="export-btn-primary" onClick={handleExportZip}>
+            ↓ ZIP: every ratio
+          </button>
+          <button className="export-btn-secondary" onClick={handleExportPng}>
+            {pageCount > 1
+              ? `↓ ZIP: ${lb.exportRatio} (${pageCount} images)`
+              : `↓ PNG: ${lb.exportRatio} only`}
+          </button>
+        </PanelSection>
+      ) : (
+        <PanelSection id="lb-export-video" title="Video">
+          <button
+            className="export-btn-primary"
+            disabled={!dailyValidation.ok || rendering}
+            onClick={handleRenderBumpReel}
+          >
+            {rendering ? "⏳ Rendering..." : "↓ Render + download MP4"}
+          </button>
+          <button
+            className="export-btn-secondary"
+            disabled={!dailyValidation.ok}
+            onClick={handleExportBumpReel}
+          >
+            ⏵ JSON + terminal command
+          </button>
+          {!dailyValidation.ok && (
+            <div className="bulk-modal-error" style={{ marginTop: 4 }}>
+              Add dailySteps to every entry to enable the bump reel.
             </div>
-            <button className="export-btn-primary" onClick={handleExportZip}>
-              ↓ ZIP — All Ratios
-            </button>
-            <button className="export-btn-secondary" onClick={handleExportPng}>
-              {pageCount > 1
-                ? `↓ ZIP — ${lb.exportRatio} (${pageCount} imgs)`
-                : `↓ PNG — ${lb.exportRatio} Only`}
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="section-label" style={{ marginTop: 28 }}>
-              EXPORT — VIDEO
+          )}
+          <div className="pf-hint" style={{ lineHeight: 1.6, marginTop: 8 }}>
+            Render + download runs on the dev server (a minute or two) and saves the MP4 to
+            your downloads and <code>./out</code>. The JSON export is the fallback for
+            rendering from a terminal.
+          </div>
+        </PanelSection>
+      )}
+      <div className="export-progress" ref={progressRef} />
+    </>
+  );
+
+  return (
+    <>
+      <div className="center">
+        <div className="topbar">
+          <div className="topbar-left" style={{ display: "flex", alignItems: "center" }}>
+            <div className="post-title-bar">Weekly Leaderboard</div>
+            <div className="lb-tabs">
+              {(["images", "video"] as LeaderboardTab[]).map((t) => (
+                <button
+                  key={t}
+                  className={`mode-switch-btn${tab === t ? " active" : ""}`}
+                  onClick={() => setTab(t)}
+                >
+                  {t === "images" ? "Images" : "Video"}
+                </button>
+              ))}
             </div>
-            <button
-              className="export-btn-primary"
-              disabled={!dailyValidation.ok || rendering}
-              onClick={handleRenderBumpReel}
-            >
-              {rendering ? "⏳ Rendering..." : "↓ Render + Download MP4"}
-            </button>
-            <button
-              className="export-btn-secondary"
-              disabled={!dailyValidation.ok}
-              onClick={handleExportBumpReel}
-            >
-              ⏵ JSON + terminal command
-            </button>
-            {!dailyValidation.ok && (
-              <div className="bulk-modal-error" style={{ marginTop: 4 }}>
-                Add dailySteps to every entry to enable the bump reel.
-              </div>
+          </div>
+          <div className="tags">
+            {tab === "images" ? (
+              <>
+                <span className="tag">{lb.exportRatio}</span>
+                <span className="tag">{lb.theme}</span>
+                {pageCount > 1 && <span className="tag">{pageCount} imgs</span>}
+              </>
+            ) : (
+              <>
+                <span className="tag">{videoConfig.format}</span>
+                <span className="tag">{videoConfig.theme}</span>
+                <span className="tag">{videoConfig.pacing}</span>
+              </>
             )}
-            <div style={{ fontSize: 11, lineHeight: 1.6, opacity: 0.5, marginTop: 8 }}>
-              Render + Download renders on the dev server (takes a minute or two)
-              and saves the MP4 to your downloads and <code>./out</code>. The JSON
-              export is the fallback for rendering from a terminal.
-            </div>
-          </>
+          </div>
+        </div>
+
+        {tab === "images" && pageCount > 1 && (
+          <div className="slide-nav">
+            <button
+              className="nav-btn"
+              onClick={() => setPreviewPage((p) => Math.max(0, p - 1))}
+              disabled={safePage === 0}
+            >
+              ‹
+            </button>
+            <span className="slide-counter">
+              Part {safePage + 1} / {pageCount}
+            </span>
+            <button
+              className="nav-btn"
+              onClick={() => setPreviewPage((p) => Math.min(pageCount - 1, p + 1))}
+              disabled={safePage === pageCount - 1}
+            >
+              ›
+            </button>
+          </div>
         )}
-        <div className="export-progress" ref={progressRef} />
+
+        <div
+          className="card-area"
+          style={{ paddingTop: tab === "images" && pageCount > 1 ? 8 : 24 }}
+        >
+          {tab === "images" ? (
+            <div style={{ width: "100%", maxWidth: 400 }}>
+              <LeaderboardCard
+                data={lb.data}
+                theme={lb.theme}
+                aspectRatio={lb.exportRatio}
+                logoScale={lb.logoScale}
+                cta={lb.cta}
+                pageIndex={safePage}
+                avatars={lb.avatars}
+                design={lb.design}
+              />
+            </div>
+          ) : (
+            <VideoPreview
+              data={lb.data}
+              config={effectiveVideoConfig}
+              avatars={lb.avatars}
+            />
+          )}
+        </div>
+      </div>
+
+      <div className="sidebar-right cp-panel lb-panel">
+        <div className="cp-tabs" role="tablist">
+          {PANEL_TABS.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              role="tab"
+              aria-selected={panelTab === t.value}
+              className={`cp-tab${panelTab === t.value ? " active" : ""}`}
+              onClick={() => setPanelTab(t.value)}
+            >
+              {t.value === "style" && tab === "video" ? "Video" : t.label}
+            </button>
+          ))}
+        </div>
+        <div className="cp-body">
+          {panelTab === "style" && renderStyleTab()}
+          {panelTab === "content" && renderContentTab()}
+          {panelTab === "export" && renderExportTab()}
+        </div>
       </div>
     </>
   );

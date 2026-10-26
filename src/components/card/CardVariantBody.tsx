@@ -1,6 +1,6 @@
 import React from "react";
 import type { Slide } from "../../data/posts";
-import type { CardDesign } from "../../data/design/resolve";
+import { tint, type CardDesign } from "../../data/design/resolve";
 import { parseComparison, parseList, parseStat } from "../../data/design/variants";
 import { BoldText } from "../BoldText";
 
@@ -168,7 +168,7 @@ export const CardVariantBody: React.FC<CardVariantBodyProps> = ({
                 padding: `${8 * s}px 0`,
                 borderBottom:
                   idx < items.length - 1
-                    ? `1px solid ${d.mode === "light" ? "rgba(90,69,176,0.15)" : "rgba(112,91,207,0.18)"}`
+                    ? `1px solid ${tint(d, d.mode === "light" ? 0.15 : 0.18)}`
                     : "none",
               }}
             >
@@ -252,9 +252,8 @@ export const CardVariantBody: React.FC<CardVariantBodyProps> = ({
           <div
             style={{
               ...panelBase,
-              background:
-                d.mode === "light" ? "rgba(90,69,176,0.07)" : "rgba(112,91,207,0.1)",
-              border: `1px solid ${d.mode === "light" ? "rgba(90,69,176,0.35)" : "rgba(112,91,207,0.4)"}`,
+              background: tint(d, d.mode === "light" ? 0.07 : 0.1),
+              border: `1px solid ${tint(d, d.mode === "light" ? 0.35 : 0.4)}`,
             }}
           >
             <span style={{ ...labelBase, color: d.hlColor }}>✓ TRUTH</span>

@@ -1,18 +1,18 @@
 import { Easing } from "remotion";
-import { PLOT_BOTTOM, PLOT_LEFT, PLOT_RIGHT, PLOT_TOP } from "./constants";
+import type { BumpGeometry } from "./constants";
 import type { BumpPerson } from "./model";
 import type { BumpTimeline } from "./timing";
 
 /** Y coordinate of a rank row (rank 1 at the top of the plot). */
-export function rowY(rank: number, rowCount: number): number {
-  if (rowCount <= 1) return (PLOT_TOP + PLOT_BOTTOM) / 2;
-  return PLOT_TOP + ((rank - 1) * (PLOT_BOTTOM - PLOT_TOP)) / (rowCount - 1);
+export function rowY(rank: number, rowCount: number, g: BumpGeometry): number {
+  if (rowCount <= 1) return (g.plotTop + g.plotBottom) / 2;
+  return g.plotTop + ((rank - 1) * (g.plotBottom - g.plotTop)) / (rowCount - 1);
 }
 
 /** X coordinate of a day column (day 0 at the left edge of the plot). */
-export function dayX(dayIndex: number, dayCount: number): number {
-  if (dayCount <= 1) return (PLOT_LEFT + PLOT_RIGHT) / 2;
-  return PLOT_LEFT + (dayIndex * (PLOT_RIGHT - PLOT_LEFT)) / (dayCount - 1);
+export function dayX(dayIndex: number, dayCount: number, g: BumpGeometry): number {
+  if (dayCount <= 1) return (g.plotLeft + g.plotRight) / 2;
+  return g.plotLeft + (dayIndex * (g.plotRight - g.plotLeft)) / (dayCount - 1);
 }
 
 const segmentEase = Easing.inOut(Easing.cubic);
@@ -40,21 +40,31 @@ export interface TipPosition {
   y: number;
 }
 
+/** Shared line options: where to draw and whether segments are S-curves. */
+export interface LineShape {
+  geometry: BumpGeometry;
+  rowCount: number;
+  dayCount: number;
+  curved: boolean;
+}
+
+const smoothstep = (u: number) => u * u * (3 - 2 * u);
+
+/** Point `frac` of the way along segment d0 -> d0+1 (x linear, y eased when curved). */
+function segmentPoint(person: BumpPerson, d0: number, frac: number, s: LineShape): TipPosition {
+  const d1 = Math.min(d0 + 1, s.dayCount - 1);
+  const x0 = dayX(d0, s.dayCount, s.geometry);
+  const x1 = dayX(d1, s.dayCount, s.geometry);
+  const y0 = rowY(person.days[d0].rank, s.rowCount, s.geometry);
+  const y1 = rowY(person.days[d1].rank, s.rowCount, s.geometry);
+  const yFrac = s.curved ? smoothstep(frac) : frac;
+  return { x: x0 + (x1 - x0) * frac, y: y0 + (y1 - y0) * yFrac };
+}
+
 /** Position of a person's line tip at continuous day position `p`. */
-export function positionAt(
-  person: BumpPerson,
-  p: number,
-  rowCount: number,
-  dayCount: number
-): TipPosition {
+export function positionAt(person: BumpPerson, p: number, s: LineShape): TipPosition {
   const d0 = Math.floor(p);
-  const d1 = Math.min(d0 + 1, dayCount - 1);
-  const frac = p - d0;
-  const x0 = dayX(d0, dayCount);
-  const x1 = dayX(d1, dayCount);
-  const y0 = rowY(person.days[d0].rank, rowCount);
-  const y1 = rowY(person.days[d1].rank, rowCount);
-  return { x: x0 + (x1 - x0) * frac, y: y0 + (y1 - y0) * frac };
+  return segmentPoint(person, d0, p - d0, s);
 }
 
 /** Cumulative step count of a person at continuous day position `p`. */
@@ -67,20 +77,27 @@ export function cumulativeAt(person: BumpPerson, p: number): number {
   return c0 + (c1 - c0) * frac;
 }
 
+/** Samples per segment when curved; plenty for a smooth S at 1080px. */
+const CURVE_SAMPLES = 16;
+
 /** SVG polyline points for the drawn part of a person's line, tip included. */
-export function linePoints(
-  person: BumpPerson,
-  p: number,
-  rowCount: number,
-  dayCount: number
-): string {
+export function linePoints(person: BumpPerson, p: number, s: LineShape): string {
   const pts: string[] = [];
-  for (let d = 0; d <= Math.floor(p); d++) {
-    pts.push(`${dayX(d, dayCount)},${rowY(person.days[d].rank, rowCount)}`);
-  }
-  if (p > Math.floor(p)) {
-    const tip = positionAt(person, p, rowCount, dayCount);
-    pts.push(`${tip.x},${tip.y}`);
+  const push = (pt: TipPosition) => pts.push(`${pt.x.toFixed(1)},${pt.y.toFixed(1)}`);
+  const whole = Math.floor(p);
+  const frac = p - whole;
+
+  push(segmentPoint(person, 0, 0, s));
+  for (let d = 0; d <= whole; d++) {
+    // Segment d -> d+1 is fully drawn for d < whole, partially for d === whole.
+    const end = d < whole ? 1 : frac;
+    if (end <= 0) break;
+    if (s.curved) {
+      const steps = Math.max(1, Math.ceil(CURVE_SAMPLES * end));
+      for (let k = 1; k <= steps; k++) push(segmentPoint(person, d, (end * k) / steps, s));
+    } else {
+      push(segmentPoint(person, d, end, s));
+    }
   }
   return pts.join(" ");
 }
